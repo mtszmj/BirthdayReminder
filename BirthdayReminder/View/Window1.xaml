@@ -8,7 +8,7 @@
         Title="Window1" Height="450" Width="800">
     <Grid>
         <ListBox HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" VerticalAlignment="Top" Width="302"
-        ItemsSource="{Binding People2}"
+        ItemsSource="{Binding PeopleCollection}"
         SelectedItem="{Binding SelectedPerson, Mode=OneWayToSource}"
         ItemTemplate="{StaticResource PersonListingTemplate}"/>
         <Label Content="{Binding Path=SelectedPerson.Name}" HorizontalAlignment="Left" Margin="409,86,0,0" VerticalAlignment="Top"/>

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace BirthdayReminder
 {
+    [Serializable]
     public class Person : INotifyPropertyChanged
     {
         protected Person()

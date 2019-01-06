@@ -19,10 +19,10 @@ namespace BirthdayReminder
     /// </summary>
     public partial class Window1 : Window
     {
-        public Window1()
+        public Window1(Window1ViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = ViewModel = new Window1ViewModel();
+            DataContext = ViewModel = viewModel;
 
         }
 

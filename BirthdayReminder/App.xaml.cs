@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Mtszmj.Log;
+using BirthdayReminder.Model.Service;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -19,11 +22,27 @@ namespace BirthdayReminder
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            InitTestData();
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
-            Window1 w = new Window1();
+            //InitTestData();
+            //MainWindow mainWindow = new MainWindow();
+            //mainWindow.Show();
+
+            var notifyService = new ConsoleNotifyService();
+            notifyService.Notify();
+
+            var dataService = new XmlFileDataService(@"C:/Temp/Birth/birth.xml");
+            Window1ViewModel wvm = new Window1ViewModel(dataService);
+            Window1 w = new Window1(wvm);
             w.Show();
+
+            new LogView().Show();
+            for (var i = 0; i < 10; i++) { 
+                Logger.Log.LogTrace("Test View Modelu");
+                Logger.Log.LogDebug("Test View Modelu");
+                Logger.Log.LogInfo("Test View Modelu");
+                Logger.Log.LogWarning("Test View Modelu");
+                Logger.Log.LogError("Test View Modelu");
+                Logger.Log.LogCritical("Test View Modelu");
+            }
         }
 
         private void InitTestData()
