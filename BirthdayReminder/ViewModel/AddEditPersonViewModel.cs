@@ -13,12 +13,14 @@ namespace BirthdayReminder
         {
             Person = Person.Factory.CreateEmptyPerson();
             ButtonText = "Dodaj";
+            IsAdd = true;
         }
 
         public AddEditPersonViewModel(Person person)
         {
             Person = Person.Factory.DeepCopy(person);
             ButtonText = "Modyfikuj";
+            IsAdd = false;
         }
 
         Person _ModifiedPerson;
@@ -34,8 +36,11 @@ namespace BirthdayReminder
             get => _ButtonText;
             set => _ButtonText = value;
         }
-
+        //TODO zmienic button content binding na settery z IsAdd / IsEdit
+        public bool IsAdd { get; set; }
+        
         public bool Result { get; set; }
 
+        protected override Type _Window => typeof(AddEditPersonView);
     }
 }

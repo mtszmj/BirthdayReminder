@@ -1,4 +1,5 @@
 ﻿using BirthdayReminder.Model.Service;
+using BirthdayReminder.ViewModel;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,15 +8,20 @@ using System.Windows.Data;
 
 namespace BirthdayReminder
 {
-    public class Window1ViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase
     {
-        public Window1ViewModel(IDataService dataService)
+        public MainViewModel(IDataService dataService, ILogViewModel logVM = null)
         {
             DataService = dataService;
+            _LogViewModel = logVM;
+            OpenLogWindow = new RelayCommand(o => _LogViewModel?.Show(),
+                               o => (_LogViewModel != null)
+                               );
             LoadData();
         }
 
         private IDataService DataService { get; set; }
+        private ILogViewModel _LogViewModel { get; }
         public ObservableCollection<Person> PeopleCollection { get; set; } = new ObservableCollection<Person>();
         
         private Person _SelectedPerson;
@@ -24,6 +30,17 @@ namespace BirthdayReminder
             get => _SelectedPerson;
             set => this.SetField(ref _SelectedPerson, value);
         }
+
+        public RelayCommand ExitCommand { get; }
+            = new RelayCommand(o => Application.Current.Shutdown());
+        public RelayCommand OpenLogWindow { get; }
+
+        //public RelayCommand ImportCommand { get; }
+        //    = new RelayCommand(o => null);
+
+        protected override Type _Window => typeof(MainView);
+
+        
 
         private void LoadData()
         {

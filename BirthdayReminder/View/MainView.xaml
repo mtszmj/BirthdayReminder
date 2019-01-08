@@ -1,0 +1,114 @@
+﻿<Window x:Class="BirthdayReminder.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BirthdayReminder"
+        mc:Ignorable="d"
+        Title="Urodzinowy przypominacz" Height="450" Width="600">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+        <Label 
+            Grid.Row="1"
+            Grid.Column="0"
+            Content="Lista osób:"
+            Style="{StaticResource MainLabelStyle}"
+            />
+        <Label 
+            Grid.Row="1"
+            Grid.Column="2"
+            Content="Dane osobiste:"
+            Style="{StaticResource MainLabelStyle}"
+            />
+        <GridSplitter
+            Grid.Row="1"
+            Grid.RowSpan="3"
+            Grid.Column="1" HorizontalAlignment="Center" 
+            Width="2"
+            />
+
+        <ListBox 
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.RowSpan="2"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" 
+            Margin="5" 
+            ItemsSource="{Binding PeopleCollection}"
+            SelectedItem="{Binding SelectedPerson, Mode=OneWayToSource}"
+            ItemTemplate="{StaticResource PersonListingTemplate}"/>
+
+        <ContentControl 
+            x:Name="Details"
+            Grid.Row="2"
+            Grid.Column="2"
+            Content="{Binding SelectedPerson, Mode=OneWay}"
+            ContentTemplate="{StaticResource PersonDataTemplate}"
+            Margin="5"
+            />
+
+        <StackPanel
+            Grid.Row="3"
+            Grid.Column="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            >
+            <Button Name="AddButton" 
+                Content="Dodaj osobę" 
+                Click="AddButton_Click"
+                VerticalAlignment="Stretch" 
+                Width="75"
+                Margin="5"/>
+
+            <Button Name="EditButton" 
+                Content="Edytuj" 
+                Click="EditButton_Click"
+                VerticalAlignment="Stretch" 
+                Width="75" 
+                Margin="5"/>
+            
+            <Button Name="DeleteButton" 
+                Content="Usuń"
+                Click="DeleteButton_Click"
+                VerticalAlignment="Stretch" 
+                Width="75" 
+                Margin="5"/>
+        </StackPanel>
+        
+        
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,143,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,167,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,191,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,215,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_3"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,239,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_4"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,263,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_5"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="624,287,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_6"/>
+        <Menu 
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+            <MenuItem Header="_Plik">
+                <MenuItem Header="_Zamknij" 
+                          Command="{Binding ExitCommand}"/>
+                <MenuItem Header="_Importuj"
+                          Command="{Binding ImportCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_Log"
+                      Command="{Binding OpenLogWindow}"/>
+        </Menu>
+    </Grid>
+</Window>

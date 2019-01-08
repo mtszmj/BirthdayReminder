@@ -17,16 +17,16 @@ namespace BirthdayReminder
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class Window1 : Window
+    public partial class MainView : Window
     {
-        public Window1(Window1ViewModel viewModel)
+        public MainView(MainViewModel viewModel)
         {
             InitializeComponent();
             DataContext = ViewModel = viewModel;
 
         }
 
-        private Window1ViewModel ViewModel;
+        private MainViewModel ViewModel;
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {

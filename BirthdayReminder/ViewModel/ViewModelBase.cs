@@ -5,10 +5,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace BirthdayReminder
 {
-    public class ViewModelBase : INotifyPropertyChanged
+    public abstract class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -24,6 +25,24 @@ namespace BirthdayReminder
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+
+        protected abstract Type _Window { get; }
+
+        public void Show()
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.GetType();
+                
+                if (window.GetType() == _Window)
+                {
+                    window.Activate();
+                    return;
+                }
+            }
+            var view = Activator.CreateInstance(_Window, this) as Window;
+            view.Show();
         }
     }
 }

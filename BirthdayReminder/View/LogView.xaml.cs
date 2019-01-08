@@ -21,10 +21,10 @@ namespace BirthdayReminder
     {
         LogViewModel ViewModel;
 
-        public LogView()
+        public LogView(LogViewModel logVM)
         {
             InitializeComponent();
-            DataContext = ViewModel = new LogViewModel();
+            DataContext = ViewModel = logVM;
         }
     }
 }

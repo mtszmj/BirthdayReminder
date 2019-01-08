@@ -86,8 +86,20 @@
                     HorizontalAlignment="Right"
                     Padding="5"
                     Click="AddPersonButton_Click"
-                    Content="{Binding Path=ButtonText}" Height="30" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="70"
-                    />
+                    Height="30" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="70"
+                    Content="{Binding Path=ButtonText}"
+                    >
+                <!-- {Binding Path=ButtonText} 
+                <Style TargetType="Button">
+                    <Setter Property="Content" Value="DataTrigger Before"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsAdd}" Value="True">
+                            <Setter Property="Content" Value="Changed"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+
+                </Style>-->
+            </Button>
 
         </Grid>
     </Border>

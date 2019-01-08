@@ -22,27 +22,19 @@ namespace BirthdayReminder
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            //InitTestData();
-            //MainWindow mainWindow = new MainWindow();
-            //mainWindow.Show();
-
+            IDataService dataService = new XmlFileDataService(@"C:/Temp/Birth/birth.xml");
+            dataService = new TestDataService();
             var notifyService = new ConsoleNotifyService();
+            var logVM = new LogViewModel();
+
+            MainViewModel wvm = new MainViewModel(dataService, logVM);
+            wvm.Show();
+
+            ContactImporter csv = new ContactImporter();
+            foreach (var p in csv.Import(@"C:\Temp\contacts.csv"))
+                wvm.PeopleCollection.Add(p);
+
             notifyService.Notify();
-
-            var dataService = new XmlFileDataService(@"C:/Temp/Birth/birth.xml");
-            Window1ViewModel wvm = new Window1ViewModel(dataService);
-            Window1 w = new Window1(wvm);
-            w.Show();
-
-            new LogView().Show();
-            for (var i = 0; i < 10; i++) { 
-                Logger.Log.LogTrace("Test View Modelu");
-                Logger.Log.LogDebug("Test View Modelu");
-                Logger.Log.LogInfo("Test View Modelu");
-                Logger.Log.LogWarning("Test View Modelu");
-                Logger.Log.LogError("Test View Modelu");
-                Logger.Log.LogCritical("Test View Modelu");
-            }
         }
 
         private void InitTestData()
