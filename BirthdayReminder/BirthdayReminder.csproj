@@ -56,6 +56,9 @@
     <Reference Include="Google.Apis.PlatformServices, Version=1.36.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.36.1\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="Log">
+      <HintPath>..\..\Log\Log\bin\Release\netstandard2.0\Log.dll</HintPath>
+    </Reference>
     <Reference Include="MailKit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
       <HintPath>..\packages\MailKit.2.1.2\lib\net45\MailKit.dll</HintPath>
     </Reference>
@@ -89,8 +92,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\Log\ILogger.cs" />
-    <Compile Include="Model\Log\Writers\LoggerWithStorage.cs" />
     <Compile Include="Model\Service\Importer\ContactImporter.cs" />
     <Compile Include="Model\Service\Importer\GoogleCsvStrategy.cs" />
     <Compile Include="Model\Service\Importer\IImportStrategy.cs" />
@@ -112,16 +113,6 @@
     </Compile>
     <Compile Include="ViewModel\LogViewModel.cs" />
     <Compile Include="LongDateConverter.cs" />
-    <Compile Include="Model\Log\Writers\ConsoleLogWriter.cs" />
-    <Compile Include="Model\Log\Writers\ILogWriter.cs" />
-    <Compile Include="Model\Log\Logger.cs" />
-    <Compile Include="Model\Log\Creational\LoggerBuilder.cs" />
-    <Compile Include="Model\Log\LoggerEnums.cs" />
-    <Compile Include="Model\Log\Creational\LoggerFactory.cs" />
-    <Compile Include="Model\Log\LogMessage.cs" />
-    <Compile Include="Model\Log\LogMessageEventArgs.cs" />
-    <Compile Include="Model\Log\Writers\NullLogWriter.cs" />
-    <Compile Include="Model\Log\Writers\TextFileLogWriter.cs" />
     <Compile Include="Model\Service\Notifier\ConsoleNotifyService.cs" />
     <Compile Include="Model\Service\Notifier\EmailNotifyService.cs" />
     <Compile Include="Model\Service\Notifier\INotifyService.cs" />
