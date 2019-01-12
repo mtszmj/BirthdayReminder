@@ -106,5 +106,13 @@ namespace BirthdayReminder
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append($"{Name}, ");
+            sb.Append(IsYearSet ? DateOfBirth.ToString("dd.MM.yyyy") : DateOfBirth.ToString("dd.MM"));
+            return sb.ToString();
+        }
     }
 }

@@ -30,8 +30,8 @@ namespace BirthdayReminder
             MainViewModel wvm = new MainViewModel(dataService, logVM);
             wvm.Show();
 
-            ContactImporter csv = new ContactImporter();
-            foreach (var p in csv.Import(@"C:\Temp\contacts.csv"))
+            ContactImporter csv = ContactImporter.Factory.CreateFor(@"C:\Temp\contacts.vcf");
+            foreach (var p in csv.Import())
                 wvm.PeopleCollection.Add(p);
 
             notifyService.Notify();

@@ -89,7 +89,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\Service\ContactImporter.cs" />
+    <Compile Include="Model\Log\ILogger.cs" />
+    <Compile Include="Model\Log\Writers\LoggerWithStorage.cs" />
+    <Compile Include="Model\Service\Importer\ContactImporter.cs" />
+    <Compile Include="Model\Service\Importer\GoogleCsvStrategy.cs" />
+    <Compile Include="Model\Service\Importer\IImportStrategy.cs" />
+    <Compile Include="Model\Service\Importer\NullStrategy.cs" />
+    <Compile Include="Model\Service\Importer\Vcf3Strategy.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="ViewModel\AddEditPersonViewModel.cs" />
     <Compile Include="ViewModel\ILogViewModel.cs" />
@@ -116,12 +122,12 @@
     <Compile Include="Model\Log\LogMessageEventArgs.cs" />
     <Compile Include="Model\Log\Writers\NullLogWriter.cs" />
     <Compile Include="Model\Log\Writers\TextFileLogWriter.cs" />
-    <Compile Include="Model\Service\ConsoleNotifyService.cs" />
-    <Compile Include="Model\Service\EmailNotifyService.cs" />
-    <Compile Include="Model\Service\INotifyService.cs" />
-    <Compile Include="Model\Service\XmlFileDataService.cs" />
-    <Compile Include="Model\Service\IDataService.cs" />
-    <Compile Include="Model\Service\TestDataService.cs" />
+    <Compile Include="Model\Service\Notifier\ConsoleNotifyService.cs" />
+    <Compile Include="Model\Service\Notifier\EmailNotifyService.cs" />
+    <Compile Include="Model\Service\Notifier\INotifyService.cs" />
+    <Compile Include="Model\Service\Data\XmlFileDataService.cs" />
+    <Compile Include="Model\Service\Data\IDataService.cs" />
+    <Compile Include="Model\Service\Data\TestDataService.cs" />
     <Compile Include="ShortDateConverter.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="View\MainView.xaml.cs">
@@ -195,5 +201,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -9,7 +9,12 @@ namespace BirthdayReminder
 {
     public static class Logger
     {
-        private static ILogWriter writer = new NullLogWriter();
-        public static Mtszmj.Log.Logger Log = new Mtszmj.Log.Logger(writer);
+        public static ILogger Log
+            = new LoggerBuilder()
+                .OfType(LoggerType.Console)
+                .WithLevel(LogLevel.Trace)
+                .Enabled()
+                .WithoutStorage()
+                .Build();
     }
 }
