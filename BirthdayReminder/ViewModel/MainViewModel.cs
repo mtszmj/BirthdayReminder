@@ -1,10 +1,13 @@
 ﻿using BirthdayReminder.Model.Service;
 using BirthdayReminder.ViewModel;
+using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace BirthdayReminder
 {
@@ -14,9 +17,6 @@ namespace BirthdayReminder
         {
             DataService = dataService;
             _LogViewModel = logVM;
-            OpenLogWindow = new RelayCommand(o => _LogViewModel?.Show(),
-                               o => (_LogViewModel != null)
-                               );
             LoadData();
         }
 
@@ -31,16 +31,70 @@ namespace BirthdayReminder
             set => this.SetField(ref _SelectedPerson, value);
         }
 
+        #region Commands
+
         public RelayCommand ExitCommand { get; }
             = new RelayCommand(o => Application.Current.Shutdown());
-        public RelayCommand OpenLogWindow { get; }
 
-        //public RelayCommand ImportCommand { get; }
-        //    = new RelayCommand(o => null);
+        private RelayCommand _OpenLogWindow;
+        public RelayCommand OpenLogWindow
+        {
+            get
+            {
+                if(_OpenLogWindow == null)
+                {
+                    _OpenLogWindow = new RelayCommand(o => _LogViewModel?.Show(),
+                               o => (_LogViewModel != null)
+                               );
+                }
+                return _OpenLogWindow;
+            }
+        }
+
+        private RelayCommand _ImportCommand;
+        public RelayCommand ImportCommand
+        {
+            get
+            {
+                if(_ImportCommand == null)
+                {
+                    _ImportCommand = new RelayCommand(o => ImportAction(),
+                        o => ImportPredicate()
+                        );
+                }
+                return _ImportCommand;
+            }
+        }
+
+        #endregion
 
         protected override Type _Window => typeof(MainView);
 
-        
+        private void ImportAction()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Contact files (csv, vcf)|*.csv;*vcf";
+            ofd.RestoreDirectory = true;
+            ofd.Multiselect = false;
+
+            if(ofd.ShowDialog() == true)
+            {
+                ContactImporter csv = ContactImporter.Factory.CreateFor(ofd.FileName);
+                var set = new HashSet<Person>(PeopleCollection.Select(x => x));
+                foreach (var person in csv.Import())
+                {
+                    if(!set.Contains(person))
+                    {
+                        PeopleCollection.Add(person);
+                    }
+                }
+            }
+        }
+
+        private bool ImportPredicate()
+        {
+            return true;
+        }
 
         private void LoadData()
         {

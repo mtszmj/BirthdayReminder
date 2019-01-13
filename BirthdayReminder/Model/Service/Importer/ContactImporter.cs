@@ -13,10 +13,21 @@ namespace BirthdayReminder.Model.Service
 {
     public class ContactImporter
     {
-        protected ContactImporter(IImportStrategy importStrategy, string pathToImportedFile)
+        private ContactImporter(IImportStrategy importStrategy, string pathToImportedFile)
         {
             ImportStrategy = importStrategy;
             PathToImportedFile = pathToImportedFile;
+        }
+
+        private static Dictionary<string, ExtensionType> Extensions { get; } = new Dictionary<string, ExtensionType>
+        {
+            [".csv"] = ExtensionType.CSV,
+            [".vcf"] = ExtensionType.VCF,
+        };
+
+        private enum ExtensionType
+        {
+            Unknown, CSV, VCF
         }
 
         private IImportStrategy ImportStrategy;
@@ -32,6 +43,8 @@ namespace BirthdayReminder.Model.Service
             return ImportStrategy.Convert(PathToImportedFile);
         }
 
+        
+
         public static class Factory
         {
             public static ContactImporter CreateFor(string pathToImportedFile)
@@ -46,39 +59,46 @@ namespace BirthdayReminder.Model.Service
 
             private static IImportStrategy FindFormat(string pathToImportedFile)
             {
-                var extension = Path.GetExtension(pathToImportedFile).ToLower();
+                var ext = Path.GetExtension(pathToImportedFile).ToLower();
+                Extensions.TryGetValue(ext, out var extension);
+                Logger.Log.LogDebug($"Extension: {extension}");
                 switch(extension)
                 {
-                    case ".csv":
-                        return FindCsvFormat(pathToImportedFile);
-                    case ".vcf":
-                        return new Vcf3Strategy();
+                    case ExtensionType.CSV:
+                        return GetCsvStrategy(pathToImportedFile);
+                    case ExtensionType.VCF:
+                        return GetVcfStrategy(pathToImportedFile);
                     default:
                         return new NullStrategy();
                 }
             }
 
-            private static IImportStrategy FindCsvFormat(string pathToImportedFile)
+            private static IImportStrategy GetCsvStrategy(string pathToImportedFile)
             {
-                string firstLine;
-                using (var reader = new StreamReader(pathToImportedFile))
-                {
-                    firstLine = reader.ReadLine();
-                }
-                
+                return GetStrategy(pathToImportedFile, typeof(ICsvImportStrategy));
+            }
+
+            private static IImportStrategy GetVcfStrategy(string pathToImportedFile)
+            {
+                return GetStrategy(pathToImportedFile, typeof(IVcfImportStrategy));
+            }
+
+            private static IImportStrategy GetStrategy(string pathToImportedFile, Type importInterface)
+            {
                 var importStrategies = Assembly.GetExecutingAssembly()
-                    .GetTypes().Where(type => typeof(IImportStrategy).IsAssignableFrom(type));
+                    .GetTypes().Where(type => importInterface.IsAssignableFrom(type));
 
                 foreach (var strategy in importStrategies)
                 {
                     if (typeof(IImportStrategy).IsAssignableFrom(strategy) && strategy.IsClass)
                     {
+                        Logger.Log.LogDebug($"TYP: {strategy.Name}");
                         var importer = (IImportStrategy)Activator.CreateInstance(strategy);
                         if (importer.IsCorrectFormat(pathToImportedFile))
                             return importer;
                     }
                 }
-
+                Logger.Log.LogError("return null import strategy");
                 return new NullStrategy();
             }
         }

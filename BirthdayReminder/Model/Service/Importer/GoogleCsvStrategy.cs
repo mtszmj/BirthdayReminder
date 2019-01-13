@@ -4,7 +4,7 @@ using System.IO;
 
 namespace BirthdayReminder.Model.Service.Importer
 {
-    internal class GoogleCsvStrategy : IImportStrategy
+    internal class GoogleCsvStrategy : IImportStrategy, ICsvImportStrategy
     {
         private const char SPLITTER = ',';
         private const int LENGTH_AFTER_SPLIT = 65;

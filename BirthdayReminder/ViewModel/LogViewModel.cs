@@ -1,5 +1,5 @@
 ﻿using BirthdayReminder.ViewModel;
-using Mtszmj.Log;
+using Mtszmj.Logger;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -17,22 +17,9 @@ namespace BirthdayReminder
             Logger.Log.OnMessageLogged += Log_OnMessageLogged;
         }
 
-        private void Log_OnMessageLogged(object sender, Mtszmj.Log.LogMessageEventArgs e)
+        private void Log_OnMessageLogged(object sender, LogMessageEventArgs e)
         {
             Logs.Add(e.Message);
-        }
-
-        public void Show()
-        {
-            foreach(Window window in Application.Current.Windows)
-            {
-                if(window is LogView)
-                {
-                    window.Activate();
-                    return;
-                }
-            }
-            new LogView(this).Show();
         }
     }
 }

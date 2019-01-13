@@ -23,14 +23,15 @@ namespace BirthdayReminder
         {
             InitializeComponent();
             DataContext = ViewModel = viewModel;
-
         }
 
         private MainViewModel ViewModel;
 
+
+        // TODO usunac ponizsze metody
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.AddPerson(new Person("test", DateTime.Today, true));
+            ViewModel.AddPerson(Person.Factory.CreatePerson("test", DateTime.Today, true));
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)

@@ -102,10 +102,10 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
             <MenuItem Header="_Plik">
-                <MenuItem Header="_Zamknij" 
-                          Command="{Binding ExitCommand}"/>
                 <MenuItem Header="_Importuj"
                           Command="{Binding ImportCommand}"/>
+                <MenuItem Header="_Zamknij" 
+                          Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="_Log"
                       Command="{Binding OpenLogWindow}"/>

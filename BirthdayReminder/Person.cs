@@ -9,15 +9,17 @@ using System.Threading.Tasks;
 namespace BirthdayReminder
 {
     [Serializable]
-    public class Person : INotifyPropertyChanged
+    public class Person : INotifyPropertyChanged, IEquatable<Person>
     {
+        public const int DEFAULT_YEAR = 2000;
+
         protected Person()
         {
             IsYearSet = true;
             DateOfBirth = DateTime.Today;
         }
 
-        public Person(string name, DateTime dateOfBirth, bool isYearSet)
+        protected Person(string name, DateTime dateOfBirth, bool isYearSet)
         {
             Name = name;
             DateOfBirth = dateOfBirth;
@@ -73,6 +75,7 @@ namespace BirthdayReminder
             }
         }
 
+
         public class Factory
         {
             public static Person CreateEmptyPerson()
@@ -82,6 +85,8 @@ namespace BirthdayReminder
 
             public static Person CreatePerson(string name, DateTime dateOfBirth, bool isYearSet)
             {
+                if (!isYearSet && dateOfBirth.Year != DEFAULT_YEAR)
+                    dateOfBirth = new DateTime(DEFAULT_YEAR, dateOfBirth.Month, dateOfBirth.Day);
                 return new Person(name, dateOfBirth, isYearSet);
             }
 
@@ -113,6 +118,38 @@ namespace BirthdayReminder
             sb.Append($"{Name}, ");
             sb.Append(IsYearSet ? DateOfBirth.ToString("dd.MM.yyyy") : DateOfBirth.ToString("dd.MM"));
             return sb.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Person);
+        }
+
+        public bool Equals(Person other)
+        {
+            return other != null &&
+                   Name == other.Name &&
+                   DateOfBirth == other.DateOfBirth &&
+                   IsYearSet == other.IsYearSet;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1345444263;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            hashCode = hashCode * -1521134295 + DateOfBirth.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsYearSet.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(Person person1, Person person2)
+        {
+            return EqualityComparer<Person>.Default.Equals(person1, person2);
+        }
+
+        public static bool operator !=(Person person1, Person person2)
+        {
+            return !(person1 == person2);
         }
     }
 }

@@ -56,8 +56,9 @@
     <Reference Include="Google.Apis.PlatformServices, Version=1.36.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.36.1\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="Log">
-      <HintPath>..\..\Log\Log\bin\Release\netstandard2.0\Log.dll</HintPath>
+    <Reference Include="Logger, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Logger\Logger\bin\Release\Logger.dll</HintPath>
     </Reference>
     <Reference Include="MailKit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
       <HintPath>..\packages\MailKit.2.1.2\lib\net45\MailKit.dll</HintPath>
@@ -94,7 +95,9 @@
     </ApplicationDefinition>
     <Compile Include="Model\Service\Importer\ContactImporter.cs" />
     <Compile Include="Model\Service\Importer\GoogleCsvStrategy.cs" />
+    <Compile Include="Model\Service\Importer\ICsvImportStrategy.cs" />
     <Compile Include="Model\Service\Importer\IImportStrategy.cs" />
+    <Compile Include="Model\Service\Importer\IVcfImportStrategy.cs" />
     <Compile Include="Model\Service\Importer\NullStrategy.cs" />
     <Compile Include="Model\Service\Importer\Vcf3Strategy.cs" />
     <Compile Include="RelayCommand.cs" />

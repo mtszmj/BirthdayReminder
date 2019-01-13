@@ -11,14 +11,14 @@ namespace BirthdayReminder.Model.Service
     {
         public IEnumerable<Person> GetPeople()
         {
-            yield return new Person("Adam Smith", new DateTime(1999, 08, 10), true);
-            yield return new Person("John Doe", new DateTime(2018, 11, 23), false);
-            yield return new Person("Celcius", new DateTime(2018, 6, 23), false);
+            yield return Person.Factory.CreatePerson("Adam Smith", new DateTime(1999, 08, 10), true);
+            yield return Person.Factory.CreatePerson("John Doe", new DateTime(2018, 11, 23), false);
+            yield return Person.Factory.CreatePerson("Celcius", new DateTime(2018, 6, 23), false);
 
             DateTime today = DateTime.Today;
-            yield return new Person("Yesterday Man", today.AddDays(-1).AddYears(-10), true);
-            yield return new Person("Today Man", new DateTime(2011, today.Month, today.Day), true);
-            yield return new Person("Tomorrow Man", today.AddDays(1).AddYears(-20), true);
+            yield return Person.Factory.CreatePerson("Yesterday Man", today.AddDays(-1).AddYears(-10), true);
+            yield return Person.Factory.CreatePerson("Today Man", new DateTime(2011, today.Month, today.Day), true);
+            yield return Person.Factory.CreatePerson("Tomorrow Man", today.AddDays(1).AddYears(-20), true);
         }
 
         public void SavePeople(ObservableCollection<Person> people)

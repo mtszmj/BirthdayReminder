@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BirthdayReminder.Model.Service.Importer
 {
-    internal class Vcf3Strategy : IImportStrategy
+    internal class Vcf3Strategy : IImportStrategy, IVcfImportStrategy
     {
         private const string BEGIN = "BEGIN:VCARD";
         private const string VERSION = "VERSION:3.0";
@@ -65,8 +65,7 @@ namespace BirthdayReminder.Model.Service.Importer
                 var birthday = match.Groups[BIRTHDAY].Value;
                 var (date, isYearSet) = StringToDateTime(birthday);
                 person = Person.Factory.CreatePerson(name, date, isYearSet);
-                Logger.Log.LogDebug($"{name} {birthday}");
-                Logger.Log.LogInfo($"{person}");
+                return true;
             }
 
             return false;

@@ -21,13 +21,13 @@ namespace BirthdayReminder
             }
             else
             { 
-                this.DataContext = new Person(String.Empty, DateTime.Today, true);
+                this.DataContext = Person.Factory.CreatePerson(String.Empty, DateTime.Today, true);
             }
         }
 
         private void OnInit(object sender, RoutedEventArgs e)
         {
-            this.DataContext = new Person(String.Empty, DateTime.Today, true);
+            this.DataContext = Person.Factory.CreatePerson(String.Empty, DateTime.Today, true);
         }
 
         private void AddPerson(object sender, RoutedEventArgs args)
