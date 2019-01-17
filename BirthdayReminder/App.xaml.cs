@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using BirthdayReminder.Model.Service.Notifier;
+using BirthdayReminder;
 
 namespace BirthdayReminder
 {
@@ -22,16 +24,33 @@ namespace BirthdayReminder
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+
             IDataService dataService = new XmlFileDataService(@"C:/Temp/Birth/birth.xml");
             dataService = new TestDataService();
-            var notifyService = new ConsoleNotifyService();
+            //var notifyService = new NotifierBuilder().OfType(NotifierType.Console).Build();
+            var notifyService = new NotifierBuilder()
+                .OfType(NotifierType.Email)
+                .SetEmailFrom(BirthdayReminder.Properties.Settings.Default.EmailFrom)
+                .SetEmailFromName(BirthdayReminder.Properties.Settings.Default.EmailFromName)
+                .AddEmailTo(BirthdayReminder.Properties.Settings.Default.EmailTo)
+                .SetSubject(BirthdayReminder.Properties.Settings.Default.Subject)
+                .SetPathToPassword(BirthdayReminder.Properties.Settings.Default.PathToPwd)
+                .WithSmtp(BirthdayReminder.Properties.Settings.Default.Smtp,
+                    BirthdayReminder.Properties.Settings.Default.Port)
+                .Disabled()
+                .Build()
+                ;
+
             var logVM = new LogViewModel();
 
-            MainViewModel wvm = new MainViewModel(dataService, logVM);
+            MainViewModel wvm = new MainViewModel(dataService,
+                new NotifierBuilder().OfType(NotifierType.Console).Build(), 
+                logVM);
             wvm.Show();
+
             
 
-            notifyService.Notify();
+            notifyService.Notify(new Person[] { wvm.PeopleCollection[0] }, wvm.PeopleCollection);
         }
     }
 }

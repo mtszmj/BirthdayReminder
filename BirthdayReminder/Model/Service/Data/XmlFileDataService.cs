@@ -41,6 +41,5 @@ namespace BirthdayReminder.Model.Service
                 serializer.Serialize(writer, people);
             }
         }
-
     }
 }

@@ -26,57 +26,5 @@ namespace BirthdayReminder
         }
 
         private MainViewModel ViewModel;
-
-
-        // TODO usunac ponizsze metody
-        private void AddButton_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel.AddPerson(Person.Factory.CreatePerson("test", DateTime.Today, true));
-        }
-
-        private void EditButton_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel.EditPerson();
-        }
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel.DeletePerson();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel.AddSortingByName();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            ViewModel.AddSortingByDate();
-        }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-            ViewModel.RemoveSorting();
-        }
-
-        private void Button_Click_3(object sender, RoutedEventArgs e)
-        {
-            ViewModel.AddGrouping();
-        }
-
-        private void Button_Click_4(object sender, RoutedEventArgs e)
-        {
-            ViewModel.RemoveGrouping();
-        }
-
-        private void Button_Click_5(object sender, RoutedEventArgs e)
-        {
-            ViewModel.AddFiltering30Days();
-        }
-
-        private void Button_Click_6(object sender, RoutedEventArgs e)
-        {
-            ViewModel.RemoveFiltering();
-        }
     }
 }

@@ -15,17 +15,17 @@ using System.Windows.Shapes;
 namespace BirthdayReminder
 {
     /// <summary>
-    /// Interaction logic for AddEditPersonWindow.xaml
+    /// Interaction logic for AddEditPersonView.xaml
     /// </summary>
     public partial class AddEditPersonView : Window
     {
-        protected AddEditPersonViewModel ViewModel;
-
         public AddEditPersonView(AddEditPersonViewModel viewModel)
         {
             InitializeComponent();
             DataContext = ViewModel = viewModel;
         }
+
+        protected AddEditPersonViewModel ViewModel { get; }
 
         private void AddPersonButton_Click(object sender, RoutedEventArgs e)
         {

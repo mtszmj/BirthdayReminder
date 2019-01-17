@@ -8,14 +8,14 @@ namespace BirthdayReminder
 {
     public class LogViewModel : ViewModelBase, ILogViewModel
     {
-        public ObservableCollection<LogMessage> Logs { get; set; } = new ObservableCollection<LogMessage>();
-
-        protected override Type _Window => typeof(LogView);
-
         public LogViewModel()
         {
             Logger.Log.OnMessageLogged += Log_OnMessageLogged;
         }
+
+        public ObservableCollection<LogMessage> Logs { get; set; } = new ObservableCollection<LogMessage>();
+
+        protected override Type _Window => typeof(LogView);
 
         private void Log_OnMessageLogged(object sender, LogMessageEventArgs e)
         {

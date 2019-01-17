@@ -1,11 +1,9 @@
 ﻿using BirthdayReminder.Model.Service.Importer;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 
@@ -13,25 +11,25 @@ namespace BirthdayReminder.Model.Service
 {
     public class ContactImporter
     {
-        private ContactImporter(IImportStrategy importStrategy, string pathToImportedFile)
-        {
-            ImportStrategy = importStrategy;
-            PathToImportedFile = pathToImportedFile;
-        }
-
         private static Dictionary<string, ExtensionType> Extensions { get; } = new Dictionary<string, ExtensionType>
         {
             [".csv"] = ExtensionType.CSV,
             [".vcf"] = ExtensionType.VCF,
         };
 
+        private IImportStrategy ImportStrategy;
+        private string PathToImportedFile;
+
+        private ContactImporter(IImportStrategy importStrategy, string pathToImportedFile)
+        {
+            ImportStrategy = importStrategy;
+            PathToImportedFile = pathToImportedFile;
+        }
+
         private enum ExtensionType
         {
             Unknown, CSV, VCF
         }
-
-        private IImportStrategy ImportStrategy;
-        private string PathToImportedFile;
 
         public IEnumerable<Person> Import()
         {
@@ -39,11 +37,8 @@ namespace BirthdayReminder.Model.Service
                 throw new ArgumentNullException(nameof(PathToImportedFile));
             if (!File.Exists(PathToImportedFile))
                 throw new ArgumentException("File does not exist", nameof(PathToImportedFile));
-
             return ImportStrategy.Convert(PathToImportedFile);
         }
-
-        
 
         public static class Factory
         {
@@ -62,7 +57,7 @@ namespace BirthdayReminder.Model.Service
                 var ext = Path.GetExtension(pathToImportedFile).ToLower();
                 Extensions.TryGetValue(ext, out var extension);
                 Logger.Log.LogDebug($"Extension: {extension}");
-                switch(extension)
+                switch (extension)
                 {
                     case ExtensionType.CSV:
                         return GetCsvStrategy(pathToImportedFile);

@@ -17,9 +17,16 @@ namespace BirthdayReminder.Model.Service.Importer
         private const string BIRTHDAY = "birthday";
         private const string NAME_REGEX = @"(?<=\r\n\bFN:)(\w|.[^\r\n])+\b"; // look ahead for newline and 'FN:', take chars and whitespaces but no newlines
         private const string BIRTHDAY_REGEX = @"(?<=\r\n\bBDAY:)([\d-]{6,8})\b"; // look ahead for newline and 'BDAY:', take digits or '-' if between 6 and 8 times.
-        private static string NAME_BIRTHDAY_REGEX = $@"(?<=\r\n\bFN:)(?<{NAME}>(\w|.[^\r\n])+)\b.*(?<=\r\n\bBDAY:)(?<{BIRTHDAY}>[\d-]{{6,8}})\b"; // sum of the two upper
 
+        private static string NAME_BIRTHDAY_REGEX = $@"(?<=\r\n\bFN:)(?<{NAME}>(\w|.[^\r\n])+)\b.*(?<=\r\n\bBDAY:)(?<{BIRTHDAY}>[\d-]{{6,8}})\b"; // sum of the two upper
         private static Lazy<Regex> NameBirthdayRegex = new Lazy<Regex>(() => new Regex(NAME_BIRTHDAY_REGEX, RegexOptions.Singleline | RegexOptions.Compiled));
+
+        public IEnumerable<Person> Convert(string pathToImportedFile)
+        {
+            var lines = File.ReadAllText(pathToImportedFile);
+            var contacts = Regex.Split(lines, END);
+            return ConvertInParallel(contacts);
+        }
 
         public bool IsCorrectFormat(string pathToImportedFile)
         {
@@ -40,35 +47,30 @@ namespace BirthdayReminder.Model.Service.Importer
             return false;
         }
 
-        public IEnumerable<Person> Convert(string pathToImportedFile)
+        private IEnumerable<Person> ConvertInOneThread(string[] contacts)
         {
-            var lines = File.ReadAllText(pathToImportedFile);
-            var contacts = Regex.Split(lines, END);
-
+            var list = new List<Person>();
             foreach (var contact in contacts)
             {
                 if(TryConvert(contact, out Person person))
                 {
-                    yield return person;
+                    list.Add(person);
                 }
             }
+            return list;
         }
 
-        private bool TryConvert(string contact, out Person person)
+        private IEnumerable<Person> ConvertInParallel(string[] contacts)
         {
-            person = null;
-
-            var match = NameBirthdayRegex.Value.Match(contact);
-            if (match.Success)
+            var bag = new System.Collections.Concurrent.ConcurrentBag<Person>();
+            Parallel.ForEach(contacts, (contact) =>
             {
-                var name = match.Groups[NAME].Value;
-                var birthday = match.Groups[BIRTHDAY].Value;
-                var (date, isYearSet) = StringToDateTime(birthday);
-                person = Person.Factory.CreatePerson(name, date, isYearSet);
-                return true;
-            }
-
-            return false;
+                if(TryConvert(contact, out Person person))
+                {
+                    bag.Add(person);
+                }
+            });
+            return bag.ToList();
         }
 
         private (DateTime date, bool isYearSet) StringToDateTime(string birthday)
@@ -92,6 +94,23 @@ namespace BirthdayReminder.Model.Service.Importer
                 $"{birthday} is in invalid format (either 'yyyymmdd' or '--mmyy')", 
                 nameof(birthday)
                 );
+        }
+
+        private bool TryConvert(string contact, out Person person)
+        {
+            person = null;
+
+            var match = NameBirthdayRegex.Value.Match(contact);
+            if (match.Success)
+            {
+                var name = match.Groups[NAME].Value;
+                var birthday = match.Groups[BIRTHDAY].Value;
+                var (date, isYearSet) = StringToDateTime(birthday);
+                person = Person.Factory.CreatePerson(name, date, isYearSet);
+                return true;
+            }
+
+            return false;
         }
     }
 }

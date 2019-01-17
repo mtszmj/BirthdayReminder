@@ -8,6 +8,7 @@ namespace BirthdayReminder.Model.Service
 {
     public interface INotifyService
     {
-        void Notify();
+        bool Enabled { get; set; }
+        void Notify(IEnumerable<Person> peopleWithBirthdayToday, IEnumerable<Person> peopleWithBirthdayInFuture);
     }
 }

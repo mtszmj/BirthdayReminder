@@ -8,6 +8,8 @@ namespace BirthdayReminder
 {
     public class AddEditPersonViewModel : ViewModelBase
     {
+        private string _ButtonText;
+        private Person _ModifiedPerson;
 
         public AddEditPersonViewModel()
         {
@@ -23,24 +25,23 @@ namespace BirthdayReminder
             IsAdd = false;
         }
 
-        Person _ModifiedPerson;
+        public string ButtonText
+        {
+            get => _ButtonText;
+            set => _ButtonText = value;
+        }
+
         public Person Person
         {
             get => _ModifiedPerson;
             set => SetField(ref _ModifiedPerson, value);
         }
 
-        public string _ButtonText;
-        public string ButtonText
-        {
-            get => _ButtonText;
-            set => _ButtonText = value;
-        }
+        protected override Type _Window => typeof(AddEditPersonView);
+
         //TODO zmienic button content binding na settery z IsAdd / IsEdit
         public bool IsAdd { get; set; }
         
         public bool Result { get; set; }
-
-        protected override Type _Window => typeof(AddEditPersonView);
     }
 }

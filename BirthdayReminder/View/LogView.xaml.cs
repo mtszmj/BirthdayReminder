@@ -19,12 +19,12 @@ namespace BirthdayReminder
     /// </summary>
     public partial class LogView : Window
     {
-        LogViewModel ViewModel;
-
         public LogView(LogViewModel logVM)
         {
             InitializeComponent();
             DataContext = ViewModel = logVM;
         }
+
+        LogViewModel ViewModel;
     }
 }

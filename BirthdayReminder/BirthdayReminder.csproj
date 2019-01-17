@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\StyleCopPlus.MSBuild.4.7.49.5\build\StyleCopPlus.MSBuild.props" Condition="Exists('..\packages\StyleCopPlus.MSBuild.4.7.49.5\build\StyleCopPlus.MSBuild.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,6 +15,8 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -93,6 +96,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converter\InverseBooleanConverter.cs" />
     <Compile Include="Model\Service\Importer\ContactImporter.cs" />
     <Compile Include="Model\Service\Importer\GoogleCsvStrategy.cs" />
     <Compile Include="Model\Service\Importer\ICsvImportStrategy.cs" />
@@ -100,29 +104,28 @@
     <Compile Include="Model\Service\Importer\IVcfImportStrategy.cs" />
     <Compile Include="Model\Service\Importer\NullStrategy.cs" />
     <Compile Include="Model\Service\Importer\Vcf3Strategy.cs" />
-    <Compile Include="RelayCommand.cs" />
+    <Compile Include="Model\RelayCommand.cs" />
+    <Compile Include="Model\Service\Notifier\NotifierBuilder.cs" />
+    <Compile Include="Model\Service\Notifier\NullNotifyService.cs" />
     <Compile Include="ViewModel\AddEditPersonViewModel.cs" />
     <Compile Include="ViewModel\ILogViewModel.cs" />
     <Compile Include="View\AddEditPersonView.xaml.cs">
       <DependentUpon>AddEditPersonView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AddPersonWindow.xaml.cs">
-      <DependentUpon>AddPersonWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="EmptyRule.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="Model\Logger.cs" />
     <Compile Include="View\LogView.xaml.cs">
       <DependentUpon>LogView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\LogViewModel.cs" />
-    <Compile Include="LongDateConverter.cs" />
+    <Compile Include="Converter\LongDateConverter.cs" />
     <Compile Include="Model\Service\Notifier\ConsoleNotifyService.cs" />
     <Compile Include="Model\Service\Notifier\EmailNotifyService.cs" />
     <Compile Include="Model\Service\Notifier\INotifyService.cs" />
     <Compile Include="Model\Service\Data\XmlFileDataService.cs" />
     <Compile Include="Model\Service\Data\IDataService.cs" />
     <Compile Include="Model\Service\Data\TestDataService.cs" />
-    <Compile Include="ShortDateConverter.cs" />
+    <Compile Include="Converter\ShortDateConverter.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="View\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
@@ -132,24 +135,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AddPersonWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\LogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="View\MainView.xaml">
@@ -158,7 +149,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Person.cs" />
+    <Compile Include="Model\Person.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -197,4 +188,12 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets'))" />
+    <Error Condition="!Exists('..\packages\StyleCopPlus.MSBuild.4.7.49.5\build\StyleCopPlus.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StyleCopPlus.MSBuild.4.7.49.5\build\StyleCopPlus.MSBuild.props'))" />
+  </Target>
 </Project>

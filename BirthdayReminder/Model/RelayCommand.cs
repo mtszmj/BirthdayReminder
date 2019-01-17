@@ -9,9 +9,8 @@ namespace BirthdayReminder
 {
     public class RelayCommand : ICommand
     {
-        protected Action<object> _Execute;
         protected Predicate<object> _CanExecute;
-        public event EventHandler CanExecuteChanged;
+        protected Action<object> _Execute;
 
         public RelayCommand(Action<object> execute) : this(execute, null) { }
 
@@ -20,6 +19,8 @@ namespace BirthdayReminder
             _Execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _CanExecute = canExecute ?? (o => true);
         }
+
+        public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter)
         {

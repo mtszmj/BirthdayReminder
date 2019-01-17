@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BirthdayReminder.Model.Service.Importer
 {
@@ -13,11 +15,24 @@ namespace BirthdayReminder.Model.Service.Importer
         private const char BIRTHDAY_SPLITTER = '-';
         private const int PARTS_WITH_YEAR_SET = 3;
         private const int PARTS_WITHOUT_YEAR_SET = 4;
+
         private static Dictionary<string, int> ContactData { get; } = new Dictionary<string, int>()
         {
             [NAME] = 0,
             [BIRTHDAY] = 14,
         };
+
+        /// <summary>
+        /// Convert data from file to Collection of Person.
+        /// </summary>
+        /// <param name="pathToImportedFile"></param>
+        /// <returns>A new Person</returns>
+        public IEnumerable<Person> Convert(string pathToImportedFile)
+        {
+            var lines = File.ReadAllLines(pathToImportedFile).Skip(1);  // omit first line with headers
+            var watch = new System.Diagnostics.Stopwatch();
+            return ConvertInOneThread(lines);
+        }
 
         /// <summary>
         /// Check if file has a correct format for current strategy
@@ -35,6 +50,32 @@ namespace BirthdayReminder.Model.Service.Importer
             return false;
         }
 
+        private IEnumerable<Person> ConvertInOneThread(IEnumerable<string> contacts)
+        {
+            var list = new List<Person>();
+            foreach (var contact in contacts)
+            {
+                if (TryConvert(contact, out Person person))
+                {
+                    list.Add(person);
+                }
+            }
+            return list;
+        }
+
+        private IEnumerable<Person> ConvertInParallel(IEnumerable<string> contacts)
+        {
+            var bag = new System.Collections.Concurrent.ConcurrentBag<Person>();
+            Parallel.ForEach(contacts, (contact) =>
+            {
+                if (TryConvert(contact, out Person person))
+                {
+                    bag.Add(person);
+                }
+            });
+            return bag.ToList();
+        }
+
         private string ReadFirstLine(string pathToImportedFile)
         {
             using (var reader = new StreamReader(pathToImportedFile))
@@ -43,20 +84,16 @@ namespace BirthdayReminder.Model.Service.Importer
             }
         }
 
-        /// <summary>
-        /// Convert data from file to Collection of Person.
-        /// </summary>
-        /// <param name="pathToImportedFile"></param>
-        /// <returns>A new Person</returns>
-        public IEnumerable<Person> Convert(string pathToImportedFile)
+        private (DateTime date, bool isYearSet) StringToDateTime(string birthday)
         {
-            var lines = File.ReadAllLines(pathToImportedFile);
-            // omit first line with headers
-            for (var i = 1; i < lines.Length; i++)
-            {
-                if (TryConvert(lines[i], out Person person))
-                    yield return person;
-            }
+            var parts = birthday.Split(BIRTHDAY_SPLITTER);
+
+            if (parts.Length == PARTS_WITH_YEAR_SET)
+                return (new DateTime(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])), true);
+            else if (parts.Length == PARTS_WITHOUT_YEAR_SET)
+                return (new DateTime(2000, int.Parse(parts[2]), int.Parse(parts[3])), false);
+            else
+                return (default(DateTime), false);
         }
 
         private bool TryConvert(string line, out Person person)
@@ -72,24 +109,10 @@ namespace BirthdayReminder.Model.Service.Importer
             {
                 var (date, isYearSet) = StringToDateTime(birthday);
                 person = Person.Factory.CreatePerson(lineSplit[ContactData[NAME]], date, isYearSet);
-                Logger.Log.LogInfo($"{lineSplit[ContactData[NAME]]} - {date} - {isYearSet}");
                 return true;
             }
             else return false;
         }
-
-        private (DateTime date, bool isYearSet) StringToDateTime(string birthday)
-        {
-            var parts = birthday.Split(BIRTHDAY_SPLITTER);
-
-            if (parts.Length == PARTS_WITH_YEAR_SET)
-                return (new DateTime(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])), true);
-            else if (parts.Length == PARTS_WITHOUT_YEAR_SET)
-                return (new DateTime(2000, int.Parse(parts[2]), int.Parse(parts[3])), false);
-            else
-                return (default(DateTime), false);
-        }
-
     }
 }
 

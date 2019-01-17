@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace BirthdayReminder
 {
-    class EmptyRule : ValidationRule
+    public class EmptyRule : ValidationRule
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
