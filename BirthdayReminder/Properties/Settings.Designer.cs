@@ -165,5 +165,17 @@ namespace BirthdayReminder.Properties {
                 this["LastNotify"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public uint DaysForwardInNotify {
+            get {
+                return ((uint)(this["DaysForwardInNotify"]));
+            }
+            set {
+                this["DaysForwardInNotify"] = value;
+            }
+        }
     }
 }

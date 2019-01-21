@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BirthdayReminder"
         mc:Ignorable="d"
-        Title="Urodzinowy przypominacz" Height="450" Width="600">
+        Title="Urodzinowy przypominacz" Height="600" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

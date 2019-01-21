@@ -64,11 +64,14 @@ namespace BirthdayReminder
         //{
         //    unchecked
         //    {
-        //        var result = 13;
-        //        result = (result * 397) ^ Name.GetHashCode();
-        //        result = (result * 397) ^ DateOfBirth.GetHashCode();
-        //        result = (result * 397) ^ IsYearSet.GetHashCode();
-        //        return result;
+        //        const int HashingBase = (int)2166136261;
+        //        const int HashingMultiplier = 16777619;
+
+        //        var hash = HashingBase;
+        //        hash = (hash * HashingMultiplier) ^ (!Object.ReferenceEquals(null, Name) ? Name.GetHashCode() : 0);
+        //        hash = (hash * HashingMultiplier) ^ (!Object.ReferenceEquals(null, DateOfBirth) ? DateOfBirth.GetHashCode() : 0);
+        //        hash = (hash * HashingMultiplier) ^ (!Object.ReferenceEquals(null, IsYearSet) ? IsYearSet.GetHashCode() : 0);
+        //        return hash;
         //    }
         //}
 

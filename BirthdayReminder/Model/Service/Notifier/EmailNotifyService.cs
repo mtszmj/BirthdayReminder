@@ -36,6 +36,7 @@ namespace BirthdayReminder.Model.Service
 
         public void Notify(IEnumerable<Person> peopleWithBirthdayToday, IEnumerable<Person> peopleWithBirthdayInFuture)
         {
+            Logger.Log.LogDebug("TEST WATKOW");
             var message = PrepareMessage(peopleWithBirthdayToday, peopleWithBirthdayInFuture);
             var password = File.ReadAllText(Path);
             using (var client = new SmtpClient())
@@ -49,6 +50,7 @@ namespace BirthdayReminder.Model.Service
                 if (Enabled)
                     client.Send(message);
                 client.Disconnect(true);
+                Logger.Log.LogDebug("Wysłano poprawnie");
             }
         }
 
@@ -69,7 +71,13 @@ namespace BirthdayReminder.Model.Service
             if (peopleWithBirthdayInFuture.Any())
             {
                 sb.Append("\n\nW najbliższym czasie urodziny ma:\n");
-                sb.Append(string.Join("\n", peopleWithBirthdayInFuture.Select(person => $"{person.Name} ({person.Birthday})")));
+                sb.Append(string.Join("\n", 
+                    peopleWithBirthdayInFuture
+                        .OrderBy(p => p.Month)
+                        .ThenBy(p => p.Day)
+                        .Select(person => $"{person.Name} ({person.Birthday})")
+                    )
+                );
             }
             sb.AppendLine("\n\n--- BirthdayReminder :)");
 

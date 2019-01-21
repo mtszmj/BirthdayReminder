@@ -33,11 +33,14 @@ namespace BirthdayReminder
         public MainViewModel(IDataService dataService, INotifyService notifyService, ILogViewModel logVM = null)
         {
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
+            AddSortingByDate();
             LoadSettings();
             DataService = dataService;
             NotifyService = notifyService;
             _LogViewModel = logVM;
             LoadData();
+
+            LastNotify = DateTime.Today.AddDays(-1); // TODO usunac
 
             Logger.Log.LogDebug(LastNotify.ToString());
             NotifyTimer = new DispatcherTimer();
@@ -46,21 +49,45 @@ namespace BirthdayReminder
             NotifyTimer.Start();
         }
 
-        private void NotifyTimer_Tick(object sender, EventArgs e)
+        private async void NotifyTimer_Tick(object sender, EventArgs e)
+        {
+            await NotifyAsync();
+        }
+
+        private async Task NotifyAsync()
         {
             var date = LastNotify;
             var now = DateTime.Now;
 
-            if(date.Day != now.Day)
+            if (NotifyService.Enabled && date.Day != now.Day)
             {
-                NotifyService?.Notify(
-                    PeopleCollection.Where(p => p.DaysToBirthday == 0),
-                    PeopleCollection.Where(p => p.DaysToBirthday < 30 && p.DaysToBirthday > 0)
-                    );
+                var todaysBirthdays = PeopleCollection.Where(p => p.DaysToBirthday == 0);
+                if (todaysBirthdays.Any() || true)
+                {
+                    try
+                    {
+                        Logger.Log.LogDebug("Trying to send.");
+                        await Task.Run(() =>
+                            NotifyService?.Notify(
+                                todaysBirthdays,
+                                PeopleCollection.Where(p =>
+                                    p.DaysToBirthday < Properties.Settings.Default.DaysForwardInNotify
+                                    && p.DaysToBirthday > 0)
+                                )
+                        );
+                        Logger.Log.LogDebug("Sent correctly");
+                    }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show($"Wystąpił błąd. Sprawdź konfigurację usługi powiadomień (ustawienia).\n{exception.ToString()}");
+                        Logger.Log.LogError("Bład wysyłania");
+                        Logger.Log.LogError(exception.ToString());
+                    }
+                }
+                LastNotify = DateTime.Now;
+                Logger.Log.LogError("Sprawdzone czy ktoś ma dzisiaj urodziny, zaktualizowana data ostatniego powiadomienia.");
+                Logger.Log.LogDebug(LastNotify.ToString());
             }
-
-            Logger.Log.LogDebug(LastNotify.ToString());
-            LastNotify = DateTime.Now;
         }
 
         public ObservableCollection<Person> PeopleCollection { get; set; } = new ObservableCollection<Person>();
@@ -293,6 +320,7 @@ namespace BirthdayReminder
         private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
         {
             NotifyTimer?.Stop();
+            SaveData();
             SaveSettings();
         }
 
@@ -349,11 +377,9 @@ namespace BirthdayReminder
                 IsImportStarted = false;
                 Status = "Zaimportowano";
 
-                var set = new HashSet<Person>(PeopleCollection.Select(x => x));
-
                 foreach (var person in result)
                 {
-                    if (!set.Contains(person))
+                    if (!PeopleCollection.Contains(person))
                     {
                         PeopleCollection.Add(person);
                     }
@@ -398,7 +424,7 @@ namespace BirthdayReminder
 
         private void SaveData()
         {
-            DataService.SavePeople(PeopleCollection);
+            DataService?.SavePeople(PeopleCollection);
         }
 
         private void SaveSettings()
