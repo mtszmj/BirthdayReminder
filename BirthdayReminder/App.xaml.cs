@@ -47,6 +47,7 @@ namespace BirthdayReminder
             MainViewModel wvm = new MainViewModel(dataService,
                 notifyService, 
                 logVM);
+
             wvm.Show();
         }
     }

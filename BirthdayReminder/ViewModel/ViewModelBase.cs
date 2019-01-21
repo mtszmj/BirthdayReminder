@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace BirthdayReminder
@@ -17,21 +14,36 @@ namespace BirthdayReminder
         /// Return of <code>typeof(xxxView)</code> is handled by the ViewModel when overriding.
         /// </summary>
         protected abstract Type _Window { get; }
+        protected Window _View;
+        protected Window View
+        {
+            get
+            {
+                if (_View != null)
+                    return _View;
+                foreach (Window window in Application.Current.Windows)
+                {
+                    if (window.GetType() == _Window)
+                    {
+                        _View = window;
+                        return _View;
+                    }
+                }
+                _View = Activator.CreateInstance(_Window, this) as Window;
+                return _View;
+            }
+        }
 
         public void Show()
         {
-            foreach (Window window in Application.Current.Windows)
-            {
-                window.GetType();
-                
-                if (window.GetType() == _Window)
-                {
-                    window.Activate();
-                    return;
-                }
-            }
-            var view = Activator.CreateInstance(_Window, this) as Window;
-            view.Show();
+            View?.Show();
+            View?.Activate();
+        }
+
+        public void Hide()
+        {
+            View?.Hide();
+            return;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")

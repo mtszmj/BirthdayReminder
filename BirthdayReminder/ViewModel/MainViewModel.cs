@@ -24,15 +24,23 @@ namespace BirthdayReminder
         private bool _IsSortedByName;
         private RelayCommand _AddPersonCommand;
         private RelayCommand _EditPersonCommand;
+        private RelayCommand _ExitCommand;
+        private RelayCommand _MinimizeCommand;
         private RelayCommand _ImportCommand;
         private RelayCommand _OpenLogWindow;
         private RelayCommand _RemovePersonCommand;
         private readonly object IsImportStartedLocker = new object();
         private readonly System.Windows.Threading.DispatcherTimer NotifyTimer;
+        private System.Windows.Forms.NotifyIcon _NotifyIcon;
+        private bool _IsExit;
+
 
         public MainViewModel(IDataService dataService, INotifyService notifyService, ILogViewModel logVM = null)
         {
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
+
+            SetNotifyIcon();
+
             AddSortingByDate();
             LoadSettings();
             DataService = dataService;
@@ -47,6 +55,27 @@ namespace BirthdayReminder
             NotifyTimer.Interval = TimeSpan.FromSeconds(5);
             NotifyTimer.Tick += NotifyTimer_Tick;
             NotifyTimer.Start();
+
+            View.Closing += (s, e) => MinimizeCommand.Execute(e);
+            // TODO poprawic, bo przy wylaczaniu wywoluje jeszcze Minimize po Shutdownie.
+        }
+
+        private void SetNotifyIcon()
+        {
+            _NotifyIcon = new System.Windows.Forms.NotifyIcon();
+            _NotifyIcon.DoubleClick += (s, args) => Show();
+            _NotifyIcon.Icon = Properties.Resources.MainIcon;
+            _NotifyIcon.Visible = true;
+            _NotifyIcon.Text = "Birthday Reminder";
+
+            SetNotifyContextMenu();
+        }
+
+        private void SetNotifyContextMenu()
+        {
+            var cms = _NotifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
+            cms.Items.Add("Pokaż główne okno").Click += (s, args) => Show();
+            cms.Items.Add("Zamknij").Click += (s, args) => ExitCommand.Execute(null);
         }
 
         private async void NotifyTimer_Tick(object sender, EventArgs e)
@@ -62,7 +91,7 @@ namespace BirthdayReminder
             if (NotifyService.Enabled && date.Day != now.Day)
             {
                 var todaysBirthdays = PeopleCollection.Where(p => p.DaysToBirthday == 0);
-                if (todaysBirthdays.Any() || true)
+                if (todaysBirthdays.Any())
                 {
                     try
                     {
@@ -198,8 +227,24 @@ namespace BirthdayReminder
             }
         }
 
-        public RelayCommand ExitCommand { get; }
-            = new RelayCommand(o => Application.Current.Shutdown());
+        public RelayCommand ExitCommand
+        {
+            get
+            {
+                if(_ExitCommand == null)
+                {
+                    _ExitCommand = new RelayCommand(o => ShutdownAction());
+                }
+                return _ExitCommand;
+            }
+        }
+
+        private void ShutdownAction()
+        {
+            _NotifyIcon?.Dispose();
+            _NotifyIcon = null;
+            Application.Current.Shutdown();
+        }
 
         public RelayCommand ImportCommand
         {
@@ -213,6 +258,26 @@ namespace BirthdayReminder
                 }
                 return _ImportCommand;
             }
+        }
+
+        public RelayCommand MinimizeCommand
+        {
+            get
+            {
+                if(_MinimizeCommand == null)
+                {
+                    _MinimizeCommand = new RelayCommand(o => MinimizeAction(o as CancelEventArgs));
+                }
+                return _MinimizeCommand;
+            }
+        }
+
+        private void MinimizeAction(CancelEventArgs args)
+        {
+            if (args != null)
+                args.Cancel = true;
+            Hide();
+            _NotifyIcon?.ShowBalloonTip(2000, "BirthdayReminder", "Zminimalizowano do Traya", System.Windows.Forms.ToolTipIcon.Info);
         }
 
         public RelayCommand OpenLogWindow

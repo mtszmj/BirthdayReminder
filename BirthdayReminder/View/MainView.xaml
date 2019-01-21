@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BirthdayReminder"
         mc:Ignorable="d"
-        Title="Urodzinowy przypominacz" Height="600" Width="800">
+        Title="Urodzinowy przypominacz" Height="600" Width="800"
+        >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -120,7 +121,7 @@
                 <MenuItem Header="_Importuj"
                           Command="{Binding ImportCommand}"/>
                 <MenuItem Header="_Zamknij" 
-                          Command="{Binding ExitCommand}"/>
+                          Command="{Binding MinimizeCommand}"/>
             </MenuItem>
             <MenuItem Header="Opcje">
                 <MenuItem Header="Sortuj po imieniu" IsCheckable="True" IsChecked="{Binding IsSortedByName, Mode=TwoWay}"/>
