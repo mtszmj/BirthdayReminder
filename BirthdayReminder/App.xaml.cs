@@ -27,6 +27,8 @@ namespace BirthdayReminder
             IDataService dataService = new XmlFileDataService(@"C:/Temp/Birth/birth.xml");
             //dataService = new TestDataService();
             //var notifyService = new NotifierBuilder().OfType(NotifierType.Console).Build();
+
+            var notifyIcon = new System.Windows.Forms.NotifyIcon();
             var notifyService = new NotifierBuilder()
                 .OfType(NotifierType.Email)
                 .SetEmailFrom(BirthdayReminder.Properties.Settings.Default.EmailFrom)
@@ -37,18 +39,24 @@ namespace BirthdayReminder
                 .WithSmtp(BirthdayReminder.Properties.Settings.Default.Smtp,
                     BirthdayReminder.Properties.Settings.Default.Port)
                 .Enabled()
-                .Build()
-                ;
+                .Build();
+
+            var notifyService2 = new NotifierBuilder()
+                .OfType(NotifierType.NotifyIcon)
+                .WithNotifyIcon(notifyIcon)
+                .WithNotifyTime(1000 * 60 * 6)
+                .Enabled()
+                .Build();
 
             //notifyService = new NotifierBuilder().OfType(NotifierType.Console).Enabled().Build();
 
             var logVM = new LogViewModel();
 
             MainViewModel wvm = new MainViewModel(dataService,
-                notifyService, 
+                new[] { notifyService, notifyService2 },
+                notifyIcon,
                 logVM);
-
-            wvm.Show();
+            
         }
     }
 }

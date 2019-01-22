@@ -87,6 +87,7 @@
     <Compile Include="Model\Service\Importer\Vcf3Strategy.cs" />
     <Compile Include="Model\RelayCommand.cs" />
     <Compile Include="Model\Service\Notifier\NotifierBuilder.cs" />
+    <Compile Include="Model\Service\Notifier\NotifyIconNotifyService.cs" />
     <Compile Include="Model\Service\Notifier\NullNotifyService.cs" />
     <Compile Include="ViewModel\AddEditPersonViewModel.cs" />
     <Compile Include="ViewModel\ILogViewModel.cs" />

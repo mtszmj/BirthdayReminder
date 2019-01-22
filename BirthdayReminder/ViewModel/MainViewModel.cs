@@ -29,22 +29,23 @@ namespace BirthdayReminder
         private RelayCommand _ImportCommand;
         private RelayCommand _OpenLogWindow;
         private RelayCommand _RemovePersonCommand;
+        private RelayCommand _StartWithSystem;
         private readonly object IsImportStartedLocker = new object();
         private readonly System.Windows.Threading.DispatcherTimer NotifyTimer;
         private System.Windows.Forms.NotifyIcon _NotifyIcon;
         private bool _IsExit;
 
 
-        public MainViewModel(IDataService dataService, INotifyService notifyService, ILogViewModel logVM = null)
+        public MainViewModel(IDataService dataService, IEnumerable<INotifyService> notifyService, System.Windows.Forms.NotifyIcon notifyIcon, ILogViewModel logVM = null)
         {
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
 
-            SetNotifyIcon();
+            SetNotifyIcon(notifyIcon);
 
             AddSortingByDate();
             LoadSettings();
             DataService = dataService;
-            NotifyService = notifyService;
+            NotifyService.AddRange(notifyService);
             _LogViewModel = logVM;
             LoadData();
 
@@ -56,13 +57,30 @@ namespace BirthdayReminder
             NotifyTimer.Tick += NotifyTimer_Tick;
             NotifyTimer.Start();
 
-            View.Closing += (s, e) => MinimizeCommand.Execute(e);
+            View.Closing -= View_Closing;
+            View.Closing += View_Closing;
+            var isAutoStart = GetStartWithSystem();
+            ((MainView)View).StartWithSystemCheckbox.IsChecked = isAutoStart;
+            if (isAutoStart)
+            {
+                View.Hide();
+                _NotifyIcon.ShowBalloonTip(2000, "BirthdayReminder", "Uruchomiono", System.Windows.Forms.ToolTipIcon.None);
+            }
+            else
+            {
+                View.Show();
+            }
             // TODO poprawic, bo przy wylaczaniu wywoluje jeszcze Minimize po Shutdownie.
         }
 
-        private void SetNotifyIcon()
+        private void View_Closing(object sender, CancelEventArgs e)
         {
-            _NotifyIcon = new System.Windows.Forms.NotifyIcon();
+            MinimizeCommand.Execute(e);
+        }
+
+        private void SetNotifyIcon(System.Windows.Forms.NotifyIcon notifyIcon)
+        {
+            _NotifyIcon = notifyIcon ?? new System.Windows.Forms.NotifyIcon();
             _NotifyIcon.DoubleClick += (s, args) => Show();
             _NotifyIcon.Icon = Properties.Resources.MainIcon;
             _NotifyIcon.Visible = true;
@@ -80,42 +98,45 @@ namespace BirthdayReminder
 
         private async void NotifyTimer_Tick(object sender, EventArgs e)
         {
-            await NotifyAsync();
+            await Notify();
         }
 
-        private async Task NotifyAsync()
+        private async Task Notify()
         {
             var date = LastNotify;
             var now = DateTime.Now;
 
-            if (NotifyService.Enabled && date.Day != now.Day)
+            foreach(var notifyService in NotifyService)
             {
-                var todaysBirthdays = PeopleCollection.Where(p => p.DaysToBirthday == 0);
-                if (todaysBirthdays.Any())
+                if (notifyService.Enabled && date.Day != now.Day)
                 {
-                    try
+                    var todaysBirthdays = PeopleCollection.Where(p => p.DaysToBirthday == 0);
+                    if (todaysBirthdays.Any())
                     {
-                        Logger.Log.LogDebug("Trying to send.");
-                        await Task.Run(() =>
-                            NotifyService?.Notify(
-                                todaysBirthdays,
-                                PeopleCollection.Where(p =>
-                                    p.DaysToBirthday < Properties.Settings.Default.DaysForwardInNotify
-                                    && p.DaysToBirthday > 0)
-                                )
-                        );
-                        Logger.Log.LogDebug("Sent correctly");
+                        try
+                        {
+                            await Task.Run(() =>
+                                notifyService?.Notify(
+                                    todaysBirthdays,
+                                    PeopleCollection.Where(p =>
+                                        p.DaysToBirthday < Properties.Settings.Default.DaysForwardInNotify
+                                        && p.DaysToBirthday > 0)
+                                    )
+                            );
+
+                            Logger.Log.LogDebug($"Sent correctly for {notifyService.GetType().Name}");
+                        }
+                        catch (Exception exception)
+                        {
+                            MessageBox.Show($"Wystąpił błąd. Sprawdź konfigurację usługi powiadomień (ustawienia).\n{exception.ToString()}");
+                            Logger.Log.LogError("Bład wysyłania");
+                            Logger.Log.LogError(exception.ToString());
+                        }
                     }
-                    catch (Exception exception)
-                    {
-                        MessageBox.Show($"Wystąpił błąd. Sprawdź konfigurację usługi powiadomień (ustawienia).\n{exception.ToString()}");
-                        Logger.Log.LogError("Bład wysyłania");
-                        Logger.Log.LogError(exception.ToString());
-                    }
+                    LastNotify = DateTime.Now;
+                    Logger.Log.LogError("Sprawdzone czy ktoś ma dzisiaj urodziny, zaktualizowana data ostatniego powiadomienia.");
+                    Logger.Log.LogDebug(LastNotify.ToString());
                 }
-                LastNotify = DateTime.Now;
-                Logger.Log.LogError("Sprawdzone czy ktoś ma dzisiaj urodziny, zaktualizowana data ostatniego powiadomienia.");
-                Logger.Log.LogDebug(LastNotify.ToString());
             }
         }
 
@@ -140,6 +161,8 @@ namespace BirthdayReminder
                 SetField(ref _Status, value);
             }
         }
+
+        public bool IsAutoStart => GetStartWithSystem();
 
         public bool IsFiltered
         {
@@ -231,7 +254,7 @@ namespace BirthdayReminder
         {
             get
             {
-                if(_ExitCommand == null)
+                if (_ExitCommand == null)
                 {
                     _ExitCommand = new RelayCommand(o => ShutdownAction());
                 }
@@ -241,6 +264,7 @@ namespace BirthdayReminder
 
         private void ShutdownAction()
         {
+            View.Closing -= View_Closing;
             _NotifyIcon?.Dispose();
             _NotifyIcon = null;
             Application.Current.Shutdown();
@@ -264,7 +288,7 @@ namespace BirthdayReminder
         {
             get
             {
-                if(_MinimizeCommand == null)
+                if (_MinimizeCommand == null)
                 {
                     _MinimizeCommand = new RelayCommand(o => MinimizeAction(o as CancelEventArgs));
                 }
@@ -277,7 +301,7 @@ namespace BirthdayReminder
             if (args != null)
                 args.Cancel = true;
             Hide();
-            _NotifyIcon?.ShowBalloonTip(2000, "BirthdayReminder", "Zminimalizowano do Traya", System.Windows.Forms.ToolTipIcon.Info);
+            _NotifyIcon?.ShowBalloonTip(2000, "BirthdayReminder", "Zminimalizowano do Traya", System.Windows.Forms.ToolTipIcon.None);
         }
 
         public RelayCommand OpenLogWindow
@@ -307,6 +331,57 @@ namespace BirthdayReminder
             }
         }
 
+        public RelayCommand StartWithSystem
+        {
+            get
+            {
+                if (_StartWithSystem == null)
+                {
+                    _StartWithSystem = new RelayCommand(o => StartWithSystemAction((bool)o));
+                }
+                return _StartWithSystem;
+            }
+        }
+
+        private void StartWithSystemAction(bool isChecked)
+        {
+            if (isChecked)
+                SetStartWithSystem();
+            else
+                RemoveStartWithSystem();
+        }
+
+        private void SetStartWithSystem()
+        {
+            Logger.Log.LogInfo(nameof(SetStartWithSystem));
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+            {
+                key.SetValue("BirthdayReminder", System.Reflection.Assembly.GetExecutingAssembly().Location);
+            }
+            _NotifyIcon.ShowBalloonTip(5000, "Auto Start", "Ustawiono start z systemem", System.Windows.Forms.ToolTipIcon.None);
+        }
+
+        private void RemoveStartWithSystem()
+        {
+            Logger.Log.LogInfo(nameof(RemoveStartWithSystem));
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+            {
+                key.DeleteValue("BirthdayReminder", false);
+            }
+            _NotifyIcon.ShowBalloonTip(5000, "Auto Start", "Wyłączono start z systemem", System.Windows.Forms.ToolTipIcon.None);
+        }
+
+        private bool GetStartWithSystem()
+        {
+            var result = false;
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+            {
+                result = key.GetValue("BirthdayReminder") != null;
+            }
+
+            return result;
+        }
+
         protected override Type _Window => typeof(MainView);
 
         private bool IsImportStarted
@@ -326,7 +401,7 @@ namespace BirthdayReminder
 
         private IDataService DataService { get; set; }
 
-        private INotifyService NotifyService { get; set; }
+        private List<INotifyService> NotifyService { get; } = new List<INotifyService>();
 
         private ILogViewModel _LogViewModel { get; }
 

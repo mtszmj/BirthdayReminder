@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BirthdayReminder.Model.Service.Notifier
 {
@@ -17,6 +18,8 @@ namespace BirthdayReminder.Model.Service.Notifier
         private string pathToPwd;
         private string smtp;
         private int port;
+        private NotifyIcon notifyIcon;
+        private int time = 2000;
 
         public NotifierBuilder OfType(NotifierType type)
         {
@@ -74,6 +77,18 @@ namespace BirthdayReminder.Model.Service.Notifier
             return this;
         }
 
+        public NotifierBuilder WithNotifyIcon(NotifyIcon notifyIcon)
+        {
+            this.notifyIcon = notifyIcon;
+            return this;
+        }
+
+        public NotifierBuilder WithNotifyTime(int time)
+        {
+            this.time = time;
+            return this;
+        }
+
         public INotifyService Build()
         {
             switch (type)
@@ -82,6 +97,10 @@ namespace BirthdayReminder.Model.Service.Notifier
                     return new ConsoleNotifyService { Enabled = enabled };
                 case NotifierType.Email:
                     return new EmailNotifyService(enabled, from, fromName, to.Value, subject, pathToPwd, smtp, port);
+                case NotifierType.NotifyIcon:
+                    if (notifyIcon != null)
+                        return new NotifyIconNotifyService(enabled, notifyIcon, time);
+                    else throw new ArgumentNullException("NotifyIcon");
             }
             return new NullNotifyService();
         }
@@ -89,6 +108,6 @@ namespace BirthdayReminder.Model.Service.Notifier
 
     public enum NotifierType
     {
-        Null, Console, Email
+        Null, Console, Email, NotifyIcon
     }
 }
