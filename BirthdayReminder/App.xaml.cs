@@ -38,7 +38,7 @@ namespace BirthdayReminder
                 .SetPathToPassword(BirthdayReminder.Properties.Settings.Default.PathToPwd)
                 .WithSmtp(BirthdayReminder.Properties.Settings.Default.Smtp,
                     BirthdayReminder.Properties.Settings.Default.Port)
-                .Enabled()
+                .Disabled()
                 .Build();
 
             var notifyService2 = new NotifierBuilder()
@@ -49,8 +49,10 @@ namespace BirthdayReminder
                 .Build();
 
             //notifyService = new NotifierBuilder().OfType(NotifierType.Console).Enabled().Build();
-
-            var logVM = new LogViewModel();
+            LogViewModel logVM = null;
+#if DEBUG
+            logVM = new LogViewModel();
+#endif
 
             MainViewModel wvm = new MainViewModel(dataService,
                 new[] { notifyService, notifyService2 },

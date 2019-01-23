@@ -61,12 +61,129 @@ namespace BirthdayReminder.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Auto Start.
+        /// </summary>
+        internal static string AutoStart {
+            get {
+                return ResourceManager.GetString("AutoStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zamknij.
+        /// </summary>
+        internal static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Importuję kontakty....
+        /// </summary>
+        internal static string ContactAreImported {
+            get {
+                return ResourceManager.GetString("ContactAreImported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wystąpił błąd..
+        /// </summary>
+        internal static string EmailException {
+            get {
+                return ResourceManager.GetString("EmailException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Błąd.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zaimportowano.
+        /// </summary>
+        internal static string ImportFinished {
+            get {
+                return ResourceManager.GetString("ImportFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon MainIcon {
             get {
                 object obj = ResourceManager.GetObject("MainIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zminimalizowano do Traya.
+        /// </summary>
+        internal static string MinimizeToTray {
+            get {
+                return ResourceManager.GetString("MinimizeToTray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nie wybrano nikogo do usunięcia.
+        /// </summary>
+        internal static string NobodySelectedForDeletion {
+            get {
+                return ResourceManager.GetString("NobodySelectedForDeletion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nie wybrano nikogo do edycji.
+        /// </summary>
+        internal static string NobodySelectedForEdition {
+            get {
+                return ResourceManager.GetString("NobodySelectedForEdition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pokaż główne okno.
+        /// </summary>
+        internal static string ShowMainWindow {
+            get {
+                return ResourceManager.GetString("ShowMainWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uruchomiono.
+        /// </summary>
+        internal static string Started {
+            get {
+                return ResourceManager.GetString("Started", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wyłączono start z systemem.
+        /// </summary>
+        internal static string StartReset {
+            get {
+                return ResourceManager.GetString("StartReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ustawiono start z systemem.
+        /// </summary>
+        internal static string StartSet {
+            get {
+                return ResourceManager.GetString("StartSet", resourceCulture);
             }
         }
     }

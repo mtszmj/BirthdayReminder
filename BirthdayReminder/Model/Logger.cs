@@ -1,4 +1,5 @@
 ﻿using Mtszmj.Logger;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,10 +9,11 @@ namespace BirthdayReminder
     {
         public static ILogger Log { get; }
             = new LoggerBuilder()
-                .OfType(LoggerWriterType.Console)
+                .OfType(LoggerWriterType.TextFile)
+                .WithPath($"logfile_{DateTime.Now.ToString("yyyyMMdd_HHmm")}.log")
                 .WithLevel(LogLevel.Trace)
                 .Enabled()
-                .WithStorage()
+                .WithoutStorage()
                 .Build();
 
         public static IEnumerable<LogMessage> Messages

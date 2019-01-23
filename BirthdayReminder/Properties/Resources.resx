@@ -117,8 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AutoStart" xml:space="preserve">
+    <value>Auto Start</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Zamknij</value>
+  </data>
+  <data name="ContactAreImported" xml:space="preserve">
+    <value>Importuję kontakty...</value>
+  </data>
+  <data name="EmailException" xml:space="preserve">
+    <value>Wystąpił błąd.</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Błąd</value>
+  </data>
+  <data name="ImportFinished" xml:space="preserve">
+    <value>Zaimportowano</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="MainIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Visualpharm-Happy-Easter-Cake.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MinimizeToTray" xml:space="preserve">
+    <value>Zminimalizowano do Traya</value>
+  </data>
+  <data name="NobodySelectedForDeletion" xml:space="preserve">
+    <value>Nie wybrano nikogo do usunięcia</value>
+  </data>
+  <data name="NobodySelectedForEdition" xml:space="preserve">
+    <value>Nie wybrano nikogo do edycji</value>
+  </data>
+  <data name="ShowMainWindow" xml:space="preserve">
+    <value>Pokaż główne okno</value>
+  </data>
+  <data name="Started" xml:space="preserve">
+    <value>Uruchomiono</value>
+  </data>
+  <data name="StartReset" xml:space="preserve">
+    <value>Wyłączono start z systemem</value>
+  </data>
+  <data name="StartSet" xml:space="preserve">
+    <value>Ustawiono start z systemem</value>
   </data>
 </root>

@@ -177,5 +177,47 @@ namespace BirthdayReminder.Properties {
                 this["DaysForwardInNotify"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run")]
+        public string RegistryKey {
+            get {
+                return ((string)(this["RegistryKey"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("BirthdayReminder")]
+        public string AppName {
+            get {
+                return ((string)(this["AppName"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
+        public int BaloonBasicTipTime {
+            get {
+                return ((int)(this["BaloonBasicTipTime"]));
+            }
+            set {
+                this["BaloonBasicTipTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("03:00:00")]
+        public global::System.TimeSpan BaloonNotificationTipTime {
+            get {
+                return ((global::System.TimeSpan)(this["BaloonNotificationTipTime"]));
+            }
+            set {
+                this["BaloonNotificationTipTime"] = value;
+            }
+        }
     }
 }

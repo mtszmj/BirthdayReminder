@@ -33,112 +33,48 @@ namespace BirthdayReminder
         private readonly object IsImportStartedLocker = new object();
         private readonly System.Windows.Threading.DispatcherTimer NotifyTimer;
         private System.Windows.Forms.NotifyIcon _NotifyIcon;
-        private bool _IsExit;
 
 
         public MainViewModel(IDataService dataService, IEnumerable<INotifyService> notifyService, System.Windows.Forms.NotifyIcon notifyIcon, ILogViewModel logVM = null)
         {
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
 
+            LoadSettings();
             SetNotifyIcon(notifyIcon);
 
-            AddSortingByDate();
-            LoadSettings();
             DataService = dataService;
             NotifyService.AddRange(notifyService);
             _LogViewModel = logVM;
-            LoadData();
 
-            LastNotify = DateTime.Today.AddDays(-1); // TODO usunac
+            var isAutoStart = GetStartWithSystem();
+            ((MainView)View).StartWithSystemCheckbox.IsChecked = isAutoStart;
+            AddSortingByDate();
+
+            LoadData();
+            View.Closing += View_Closing;
 
             Logger.Log.LogDebug(LastNotify.ToString());
+
             NotifyTimer = new DispatcherTimer();
-            NotifyTimer.Interval = TimeSpan.FromSeconds(5);
+            NotifyTimer.Interval = Properties.Settings.Default.BaloonNotificationTipTime;
             NotifyTimer.Tick += NotifyTimer_Tick;
             NotifyTimer.Start();
 
-            View.Closing -= View_Closing;
-            View.Closing += View_Closing;
-            var isAutoStart = GetStartWithSystem();
-            ((MainView)View).StartWithSystemCheckbox.IsChecked = isAutoStart;
             if (isAutoStart)
             {
                 View.Hide();
-                _NotifyIcon.ShowBalloonTip(2000, "BirthdayReminder", "Uruchomiono", System.Windows.Forms.ToolTipIcon.None);
+                _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, 
+                    Properties.Settings.Default.AppName, 
+                    Properties.Resources.Started, 
+                    System.Windows.Forms.ToolTipIcon.None);
             }
             else
             {
                 View.Show();
             }
-            // TODO poprawic, bo przy wylaczaniu wywoluje jeszcze Minimize po Shutdownie.
         }
 
-        private void View_Closing(object sender, CancelEventArgs e)
-        {
-            MinimizeCommand.Execute(e);
-        }
 
-        private void SetNotifyIcon(System.Windows.Forms.NotifyIcon notifyIcon)
-        {
-            _NotifyIcon = notifyIcon ?? new System.Windows.Forms.NotifyIcon();
-            _NotifyIcon.DoubleClick += (s, args) => Show();
-            _NotifyIcon.Icon = Properties.Resources.MainIcon;
-            _NotifyIcon.Visible = true;
-            _NotifyIcon.Text = "Birthday Reminder";
-
-            SetNotifyContextMenu();
-        }
-
-        private void SetNotifyContextMenu()
-        {
-            var cms = _NotifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
-            cms.Items.Add("Pokaż główne okno").Click += (s, args) => Show();
-            cms.Items.Add("Zamknij").Click += (s, args) => ExitCommand.Execute(null);
-        }
-
-        private async void NotifyTimer_Tick(object sender, EventArgs e)
-        {
-            await Notify();
-        }
-
-        private async Task Notify()
-        {
-            var date = LastNotify;
-            var now = DateTime.Now;
-
-            foreach(var notifyService in NotifyService)
-            {
-                if (notifyService.Enabled && date.Day != now.Day)
-                {
-                    var todaysBirthdays = PeopleCollection.Where(p => p.DaysToBirthday == 0);
-                    if (todaysBirthdays.Any())
-                    {
-                        try
-                        {
-                            await Task.Run(() =>
-                                notifyService?.Notify(
-                                    todaysBirthdays,
-                                    PeopleCollection.Where(p =>
-                                        p.DaysToBirthday < Properties.Settings.Default.DaysForwardInNotify
-                                        && p.DaysToBirthday > 0)
-                                    )
-                            );
-
-                            Logger.Log.LogDebug($"Sent correctly for {notifyService.GetType().Name}");
-                        }
-                        catch (Exception exception)
-                        {
-                            MessageBox.Show($"Wystąpił błąd. Sprawdź konfigurację usługi powiadomień (ustawienia).\n{exception.ToString()}");
-                            Logger.Log.LogError("Bład wysyłania");
-                            Logger.Log.LogError(exception.ToString());
-                        }
-                    }
-                    LastNotify = DateTime.Now;
-                    Logger.Log.LogError("Sprawdzone czy ktoś ma dzisiaj urodziny, zaktualizowana data ostatniego powiadomienia.");
-                    Logger.Log.LogDebug(LastNotify.ToString());
-                }
-            }
-        }
 
         public ObservableCollection<Person> PeopleCollection { get; set; } = new ObservableCollection<Person>();
 
@@ -163,6 +99,15 @@ namespace BirthdayReminder
         }
 
         public bool IsAutoStart => GetStartWithSystem();
+
+        public Visibility IsDebug
+        {
+#if DEBUG
+            get => Visibility.Visible;
+#else
+            get => Visibility.Collapsed;
+#endif
+        }
 
         public bool IsFiltered
         {
@@ -262,14 +207,6 @@ namespace BirthdayReminder
             }
         }
 
-        private void ShutdownAction()
-        {
-            View.Closing -= View_Closing;
-            _NotifyIcon?.Dispose();
-            _NotifyIcon = null;
-            Application.Current.Shutdown();
-        }
-
         public RelayCommand ImportCommand
         {
             get
@@ -294,14 +231,6 @@ namespace BirthdayReminder
                 }
                 return _MinimizeCommand;
             }
-        }
-
-        private void MinimizeAction(CancelEventArgs args)
-        {
-            if (args != null)
-                args.Cancel = true;
-            Hide();
-            _NotifyIcon?.ShowBalloonTip(2000, "BirthdayReminder", "Zminimalizowano do Traya", System.Windows.Forms.ToolTipIcon.None);
         }
 
         public RelayCommand OpenLogWindow
@@ -343,45 +272,6 @@ namespace BirthdayReminder
             }
         }
 
-        private void StartWithSystemAction(bool isChecked)
-        {
-            if (isChecked)
-                SetStartWithSystem();
-            else
-                RemoveStartWithSystem();
-        }
-
-        private void SetStartWithSystem()
-        {
-            Logger.Log.LogInfo(nameof(SetStartWithSystem));
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-            {
-                key.SetValue("BirthdayReminder", System.Reflection.Assembly.GetExecutingAssembly().Location);
-            }
-            _NotifyIcon.ShowBalloonTip(5000, "Auto Start", "Ustawiono start z systemem", System.Windows.Forms.ToolTipIcon.None);
-        }
-
-        private void RemoveStartWithSystem()
-        {
-            Logger.Log.LogInfo(nameof(RemoveStartWithSystem));
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-            {
-                key.DeleteValue("BirthdayReminder", false);
-            }
-            _NotifyIcon.ShowBalloonTip(5000, "Auto Start", "Wyłączono start z systemem", System.Windows.Forms.ToolTipIcon.None);
-        }
-
-        private bool GetStartWithSystem()
-        {
-            var result = false;
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-            {
-                result = key.GetValue("BirthdayReminder") != null;
-            }
-
-            return result;
-        }
-
         protected override Type _Window => typeof(MainView);
 
         private bool IsImportStarted
@@ -410,7 +300,7 @@ namespace BirthdayReminder
         {
             ICollectionView dataView = CollectionViewSource.GetDefaultView(PeopleCollection);
             PropertyGroupDescription groupDescription = new PropertyGroupDescription();
-            groupDescription.PropertyName = "MonthName";
+            groupDescription.PropertyName = nameof(Person.MonthName);
             dataView.GroupDescriptions.Add(groupDescription);
         }
 
@@ -438,9 +328,9 @@ namespace BirthdayReminder
             using (dataView.DeferRefresh()) // use the DeferRefresh so that we refresh only once
             {
                 dataView.SortDescriptions.Clear();
-                dataView.SortDescriptions.Add(new SortDescription("Month", ListSortDirection.Ascending));
-                dataView.SortDescriptions.Add(new SortDescription("Day", ListSortDirection.Ascending));
-                dataView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                dataView.SortDescriptions.Add(new SortDescription(nameof(Person.Month), ListSortDirection.Ascending));
+                dataView.SortDescriptions.Add(new SortDescription(nameof(Person.Day), ListSortDirection.Ascending));
+                dataView.SortDescriptions.Add(new SortDescription(nameof(Person.Name), ListSortDirection.Ascending));
             }
         }
 
@@ -451,9 +341,9 @@ namespace BirthdayReminder
             {
 
                 dataView.SortDescriptions.Clear();
-                dataView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-                dataView.SortDescriptions.Add(new SortDescription("Month", ListSortDirection.Ascending));
-                dataView.SortDescriptions.Add(new SortDescription("Day", ListSortDirection.Ascending));
+                dataView.SortDescriptions.Add(new SortDescription(nameof(Person.Name), ListSortDirection.Ascending));
+                dataView.SortDescriptions.Add(new SortDescription(nameof(Person.Month), ListSortDirection.Ascending));
+                dataView.SortDescriptions.Add(new SortDescription(nameof(Person.Day), ListSortDirection.Ascending));
             }
         }
 
@@ -467,7 +357,10 @@ namespace BirthdayReminder
         private void EditPerson()
         {
             if (_SelectedPerson == null)
-                MessageBox.Show("Nie wybrano nikogo do edycji", "Błąd", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Properties.Resources.NobodySelectedForEdition, 
+                    Properties.Resources.Error, 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Information);
             else
             {
                 var viewModel = new AddEditPersonViewModel(_SelectedPerson);
@@ -482,6 +375,17 @@ namespace BirthdayReminder
                     OnPropertyChanged(nameof(SelectedPerson));
                 }
             }
+        }
+
+        private bool GetStartWithSystem()
+        {
+            var result = false;
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Properties.Settings.Default.RegistryKey, true))
+            {
+                result = key.GetValue(Properties.Settings.Default.AppName) != null;
+            }
+
+            return result;
         }
 
         private void LoadData()
@@ -512,10 +416,10 @@ namespace BirthdayReminder
 
                 ContactImporter csv = ContactImporter.Factory.CreateFor(ofd.FileName);
                 IsImportStarted = true;
-                Status = "Importuję kontakty...";
+                Status = Properties.Resources.ContactAreImported;
                 result = await Task.Run(() => csv.Import());
                 IsImportStarted = false;
-                Status = "Zaimportowano";
+                Status = Properties.Resources.ImportFinished;
 
                 foreach (var person in result)
                 {
@@ -530,8 +434,64 @@ namespace BirthdayReminder
         }
 
         private bool ImportPredicate()
+
         {
             return !IsImportStarted;
+        }
+
+        private void MinimizeAction(CancelEventArgs args)
+        {
+            if (args != null)
+                args.Cancel = true;
+            Hide();
+            _NotifyIcon?.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, 
+                Properties.Settings.Default.AppName, 
+                Properties.Resources.MinimizeToTray, 
+                System.Windows.Forms.ToolTipIcon.None);
+        }
+
+        private async void NotifyTimer_Tick(object sender, EventArgs e)
+        {
+            await Notify();
+        }
+
+        private async Task Notify()
+        {
+            var date = LastNotify;
+            var now = DateTime.Now;
+
+            foreach(var notifyService in NotifyService)
+            {
+                if (notifyService.Enabled && date.Day != now.Day)
+                {
+                    var todaysBirthdays = PeopleCollection.Where(p => p.DaysToBirthday == 0);
+                    if (todaysBirthdays.Any())
+                    {
+                        try
+                        {
+                            await Task.Run(() =>
+                                notifyService?.Notify(
+                                    todaysBirthdays,
+                                    PeopleCollection.Where(p =>
+                                        p.DaysToBirthday < Properties.Settings.Default.DaysForwardInNotify
+                                        && p.DaysToBirthday > 0)
+                                    )
+                            );
+
+                            Logger.Log.LogDebug($"Sent correctly for {notifyService.GetType().Name}");
+                        }
+                        catch (Exception exception)
+                        {
+                            MessageBox.Show($"{Properties.Resources.EmailException}{Environment.NewLine}{exception.ToString()}");
+                            Logger.Log.LogError("Bład wysyłania");
+                            Logger.Log.LogError(exception.ToString());
+                        }
+                    }
+                    LastNotify = DateTime.Now;
+                    Logger.Log.LogInfo("Sprawdzone czy ktoś ma dzisiaj urodziny, zaktualizowana data ostatniego powiadomienia.");
+                    Logger.Log.LogDebug(LastNotify.ToString());
+                }
+            }
         }
 
         private void RemoveFiltering()
@@ -549,7 +509,10 @@ namespace BirthdayReminder
         private void RemovePerson()
         {
             if (_SelectedPerson == null)
-                MessageBox.Show("Nie wybrano nikogo do usunięcia", "Błąd", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Properties.Resources.NobodySelectedForDeletion, 
+                    Properties.Resources.Error, 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Information);
             else
             {
                 PeopleCollection.Remove(_SelectedPerson);
@@ -557,9 +520,20 @@ namespace BirthdayReminder
         }
 
         private void RemoveSorting()
+
         {
             ICollectionView dataView = CollectionViewSource.GetDefaultView(PeopleCollection);
             dataView.SortDescriptions.Clear();
+        }
+
+        private void RemoveStartWithSystem()
+        {
+            Logger.Log.LogInfo(nameof(RemoveStartWithSystem));
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Properties.Settings.Default.RegistryKey, true))
+            {
+                key.DeleteValue(Properties.Settings.Default.AppName, false);
+            }
+            _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, Properties.Resources.AutoStart, Properties.Resources.StartReset, System.Windows.Forms.ToolTipIcon.None);
         }
 
         private void SaveData()
@@ -575,6 +549,25 @@ namespace BirthdayReminder
             Properties.Settings.Default.Save();
         }
 
+        private void SetNotifyContextMenu()
+
+        {
+            var cms = _NotifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
+            cms.Items.Add(Properties.Resources.ShowMainWindow).Click += (s, args) => Show();
+            cms.Items.Add(Properties.Resources.Close).Click += (s, args) => ExitCommand.Execute(null);
+        }
+
+        private void SetNotifyIcon(System.Windows.Forms.NotifyIcon notifyIcon)
+        {
+            _NotifyIcon = notifyIcon ?? new System.Windows.Forms.NotifyIcon();
+            _NotifyIcon.DoubleClick += (s, args) => Show();
+            _NotifyIcon.Icon = Properties.Resources.MainIcon;
+            _NotifyIcon.Visible = true;
+            _NotifyIcon.Text = Properties.Settings.Default.AppName;
+
+            SetNotifyContextMenu();
+        }
+
         private bool ShowNext30Days(object sender)
         {
             Person person = sender as Person;
@@ -588,5 +581,35 @@ namespace BirthdayReminder
             return false;
         }
 
+        private void ShutdownAction()
+        {
+            View.Closing -= View_Closing;
+            _NotifyIcon?.Dispose();
+            _NotifyIcon = null;
+            Application.Current.Shutdown();
+        }
+
+        private void StartWithSystemAction(bool isChecked)
+        {
+            if (isChecked)
+                SetStartWithSystem();
+            else
+                RemoveStartWithSystem();
+        }
+
+        private void SetStartWithSystem()
+        {
+            Logger.Log.LogInfo(nameof(SetStartWithSystem));
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Properties.Settings.Default.RegistryKey, true))
+            {
+                key.SetValue(Properties.Settings.Default.AppName, System.Reflection.Assembly.GetExecutingAssembly().Location);
+            }
+            _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, Properties.Resources.AutoStart, Properties.Resources.StartSet, System.Windows.Forms.ToolTipIcon.None);
+        }
+
+        private void View_Closing(object sender, CancelEventArgs e)
+        {
+            MinimizeCommand.Execute(e);
+        }
     }
 }

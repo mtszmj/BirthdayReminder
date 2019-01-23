@@ -135,6 +135,7 @@
                           CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
             </MenuItem>
             <MenuItem Header="_Log"
+                      Visibility="{Binding IsDebug}"
                       Command="{Binding OpenLogWindow}"/>
         </Menu>
     </Grid>
