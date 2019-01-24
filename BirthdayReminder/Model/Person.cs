@@ -77,10 +77,12 @@ namespace BirthdayReminder
 
         #endregion
 
-        public int Age
+        public int? Age
         {
             get
             {
+                if (!IsYearSet)
+                    return null;
                 var today = DateTime.Today;
                 var age = today.Year - DateOfBirth.Year;
                 if (DateOfBirth.AddYears(age) > today)

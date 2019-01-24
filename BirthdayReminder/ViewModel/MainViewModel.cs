@@ -16,8 +16,11 @@ namespace BirthdayReminder
 {
     public class MainViewModel : ViewModelBase
     {
+        private static TimeSpan FirstTick = TimeSpan.FromSeconds(3);
+
         private Person _SelectedPerson;
         private string _Status;
+        private bool _IsAutoStart;
         private bool _IsFiltered;
         private bool _IsGrouped;
         private bool _IsImportStarted;
@@ -38,7 +41,7 @@ namespace BirthdayReminder
         public MainViewModel(IDataService dataService, IEnumerable<INotifyService> notifyService, System.Windows.Forms.NotifyIcon notifyIcon, ILogViewModel logVM = null)
         {
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
-
+            LastNotify = DateTime.Today.AddDays(-1);
             LoadSettings();
             SetNotifyIcon(notifyIcon);
 
@@ -46,21 +49,19 @@ namespace BirthdayReminder
             NotifyService.AddRange(notifyService);
             _LogViewModel = logVM;
 
-            var isAutoStart = GetStartWithSystem();
-            ((MainView)View).StartWithSystemCheckbox.IsChecked = isAutoStart;
+            IsAutoStart = GetStartWithSystem();
             AddSortingByDate();
 
             LoadData();
+
             View.Closing += View_Closing;
 
-            Logger.Log.LogDebug(LastNotify.ToString());
-
             NotifyTimer = new DispatcherTimer();
-            NotifyTimer.Interval = Properties.Settings.Default.BaloonNotificationTipTime;
+            NotifyTimer.Interval = FirstTick; 
             NotifyTimer.Tick += NotifyTimer_Tick;
             NotifyTimer.Start();
 
-            if (isAutoStart)
+            if (IsAutoStart)
             {
                 View.Hide();
                 _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, 
@@ -73,8 +74,7 @@ namespace BirthdayReminder
                 View.Show();
             }
         }
-
-
+        
 
         public ObservableCollection<Person> PeopleCollection { get; set; } = new ObservableCollection<Person>();
 
@@ -98,7 +98,23 @@ namespace BirthdayReminder
             }
         }
 
-        public bool IsAutoStart => GetStartWithSystem();
+
+        public bool IsAutoStart
+        {
+            get
+            {
+                return _IsAutoStart;
+            }
+            set
+            {
+                if (_IsAutoStart != value)
+                {
+                    _IsAutoStart = value;
+                    StartWithSystem.Execute(value);
+                    OnPropertyChanged(nameof(IsAutoStart));
+                }
+            }
+        }
 
         public Visibility IsDebug
         {
@@ -377,6 +393,7 @@ namespace BirthdayReminder
             }
         }
 
+
         private bool GetStartWithSystem()
         {
             var result = false;
@@ -452,6 +469,9 @@ namespace BirthdayReminder
 
         private async void NotifyTimer_Tick(object sender, EventArgs e)
         {
+            if(NotifyTimer.Interval == FirstTick)
+                NotifyTimer.Interval = Properties.Settings.Default.BaloonNotificationTipTime;
+
             await Notify();
         }
 
@@ -604,6 +624,7 @@ namespace BirthdayReminder
             {
                 key.SetValue(Properties.Settings.Default.AppName, System.Reflection.Assembly.GetExecutingAssembly().Location);
             }
+            OnPropertyChanged(nameof(IsAutoStart));
             _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, Properties.Resources.AutoStart, Properties.Resources.StartSet, System.Windows.Forms.ToolTipIcon.None);
         }
 

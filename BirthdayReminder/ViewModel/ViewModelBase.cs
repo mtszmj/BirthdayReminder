@@ -32,11 +32,20 @@ namespace BirthdayReminder
                 _View = Activator.CreateInstance(_Window, this) as Window;
                 return _View;
             }
+            private set => _View = value;
         }
 
         public void Show()
         {
-            View?.Show();
+            try
+            { 
+                View?.Show();
+            }
+            catch(InvalidOperationException e)
+            {
+                View = null;
+                View?.Show();
+            }
             View?.Activate();
         }
 

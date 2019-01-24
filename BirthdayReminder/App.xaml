@@ -187,6 +187,20 @@
                     Content="{Binding DaysToBirthday}"
                     Style="{StaticResource LabelStyle}"
                     />
+
+                <Label
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Content="Wiek:"
+                    Style="{StaticResource LabelStyle}"
+                    />
+
+                <Label
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    Content="{Binding Age}"
+                    Style="{StaticResource LabelStyle}"
+                    />
             </Grid>
         </DataTemplate>
 

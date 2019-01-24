@@ -131,8 +131,7 @@
                 <Separator/>
                 <MenuItem Header="Tylko najbliższe 30 dni" IsCheckable="True" IsChecked="{Binding IsFiltered, Mode=TwoWay}"/>
                 <Separator/>
-                <MenuItem Name="StartWithSystemCheckbox" Header="Startuj z systemem" IsCheckable="True" Command="{Binding StartWithSystem}" 
-                          CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
+                <MenuItem Name="StartWithSystemCheckbox" Header="Startuj z systemem" IsCheckable="True" IsChecked="{Binding IsAutoStart, Mode=TwoWay}"/>
             </MenuItem>
             <MenuItem Header="_Log"
                       Visibility="{Binding IsDebug}"

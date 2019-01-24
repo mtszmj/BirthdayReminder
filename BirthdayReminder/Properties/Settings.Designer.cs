@@ -210,7 +210,7 @@ namespace BirthdayReminder.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("03:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("01:00:00")]
         public global::System.TimeSpan BaloonNotificationTipTime {
             get {
                 return ((global::System.TimeSpan)(this["BaloonNotificationTipTime"]));

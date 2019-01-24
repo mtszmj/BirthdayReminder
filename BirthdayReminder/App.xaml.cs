@@ -29,6 +29,7 @@ namespace BirthdayReminder
             //var notifyService = new NotifierBuilder().OfType(NotifierType.Console).Build();
 
             var notifyIcon = new System.Windows.Forms.NotifyIcon();
+
             var notifyService = new NotifierBuilder()
                 .OfType(NotifierType.Email)
                 .SetEmailFrom(BirthdayReminder.Properties.Settings.Default.EmailFrom)
@@ -41,12 +42,16 @@ namespace BirthdayReminder
                 .Disabled()
                 .Build();
 
+            notifyService = new NotifierRetryDecorator(notifyService, 3);
+
             var notifyService2 = new NotifierBuilder()
                 .OfType(NotifierType.NotifyIcon)
                 .WithNotifyIcon(notifyIcon)
                 .WithNotifyTime(1000 * 60 * 6)
                 .Enabled()
                 .Build();
+
+            notifyService2 = new NotifierRetryDecorator(notifyService2);
 
             //notifyService = new NotifierBuilder().OfType(NotifierType.Console).Enabled().Build();
             LogViewModel logVM = null;
