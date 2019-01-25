@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using BirthdayReminder.Model.Service.Notifier;
 using BirthdayReminder;
+using BirthdayReminder.Model.Service.Password;
 
 namespace BirthdayReminder
 {
@@ -19,14 +20,18 @@ namespace BirthdayReminder
     /// </summary>
     public partial class App : Application
     {
-
         public ObservableCollection<Person> People { get; set; } = new ObservableCollection<Person>();
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            IDataService dataService = new XmlFileDataService(@"C:/Temp/Birth/birth.xml");
-            //dataService = new TestDataService();
-            //var notifyService = new NotifierBuilder().OfType(NotifierType.Console).Build();
+            IDataService dataService = new XmlFileDataService(
+                BirthdayReminder.Properties.Settings.Default.PathToData
+                );
+
+            ILoginHandler loginHandler = new LoginHandler(
+                BirthdayReminder.Properties.Settings.Default.PathToPassword,
+                BirthdayReminder.Properties.Settings.Default.PathToSalt
+                );
 
             var notifyIcon = new System.Windows.Forms.NotifyIcon();
 
@@ -36,10 +41,10 @@ namespace BirthdayReminder
                 .SetEmailFromName(BirthdayReminder.Properties.Settings.Default.EmailFromName)
                 .AddEmailTo(BirthdayReminder.Properties.Settings.Default.EmailTo)
                 .SetSubject(BirthdayReminder.Properties.Settings.Default.Subject)
-                .SetPathToPassword(BirthdayReminder.Properties.Settings.Default.PathToPwd)
                 .WithSmtp(BirthdayReminder.Properties.Settings.Default.Smtp,
                     BirthdayReminder.Properties.Settings.Default.Port)
-                .Disabled()
+                .WithLoginHandler(loginHandler)
+                .Enabled()
                 .Build();
 
             notifyService = new NotifierRetryDecorator(notifyService, 3);
@@ -52,13 +57,12 @@ namespace BirthdayReminder
                 .Build();
 
             notifyService2 = new NotifierRetryDecorator(notifyService2);
-
-            //notifyService = new NotifierBuilder().OfType(NotifierType.Console).Enabled().Build();
+            
             LogViewModel logVM = null;
 #if DEBUG
             logVM = new LogViewModel();
 #endif
-
+            
             MainViewModel wvm = new MainViewModel(dataService,
                 new[] { notifyService, notifyService2 },
                 notifyIcon,

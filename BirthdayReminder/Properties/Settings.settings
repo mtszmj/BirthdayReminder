@@ -23,9 +23,6 @@
     <Setting Name="Subject" Type="System.String" Scope="User">
       <Value Profile="(Default)">Urodziny - przypomnienie!</Value>
     </Setting>
-    <Setting Name="PathToPwd" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Auth/pwd.txt</Value>
-    </Setting>
     <Setting Name="Smtp" Type="System.String" Scope="User">
       <Value Profile="(Default)">smtp.gmail.com</Value>
     </Setting>
@@ -52,6 +49,15 @@
     </Setting>
     <Setting Name="BaloonNotificationTipTime" Type="System.TimeSpan" Scope="User">
       <Value Profile="(Default)">01:00:00</Value>
+    </Setting>
+    <Setting Name="PathToPassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Auth/password.txt</Value>
+    </Setting>
+    <Setting Name="PathToSalt" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Auth/salt.txt</Value>
+    </Setting>
+    <Setting Name="PathToData" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/Temp/Birth/birth.xml</Value>
     </Setting>
   </Settings>
 </SettingsFile>

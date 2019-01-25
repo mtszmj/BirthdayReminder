@@ -90,6 +90,8 @@
     <Compile Include="Model\Service\Notifier\NotifierRetryDecorator.cs" />
     <Compile Include="Model\Service\Notifier\NotifyIconNotifyService.cs" />
     <Compile Include="Model\Service\Notifier\NullNotifyService.cs" />
+    <Compile Include="Model\Service\Password\ILoginHandler.cs" />
+    <Compile Include="Model\Service\Password\LoginHandler.cs" />
     <Compile Include="ViewModel\AddEditPersonViewModel.cs" />
     <Compile Include="ViewModel\ILogViewModel.cs" />
     <Compile Include="View\AddEditPersonView.xaml.cs">

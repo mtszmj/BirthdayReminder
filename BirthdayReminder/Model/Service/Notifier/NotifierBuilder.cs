@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BirthdayReminder.Model.Service.Password;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,11 +16,11 @@ namespace BirthdayReminder.Model.Service.Notifier
         private string fromName;
         private Lazy<List<string>> to = new Lazy<List<string>>();
         private string subject;
-        private string pathToPwd;
         private string smtp;
         private int port;
         private NotifyIcon notifyIcon;
         private int time = 2000;
+        private ILoginHandler loginHandler;
 
         public NotifierBuilder OfType(NotifierType type)
         {
@@ -52,16 +53,16 @@ namespace BirthdayReminder.Model.Service.Notifier
             return this;
         }
 
-        public NotifierBuilder SetPathToPassword(string path)
-        {
-            pathToPwd = path;
-            return this;
-        }
-
         public NotifierBuilder WithSmtp(string smtp, int port)
         {
             this.smtp = smtp;
             this.port = port;
+            return this;
+        }
+
+        public NotifierBuilder WithLoginHandler(ILoginHandler loginHandler)
+        {
+            this.loginHandler = loginHandler;
             return this;
         }
 
@@ -96,7 +97,7 @@ namespace BirthdayReminder.Model.Service.Notifier
                 case NotifierType.Console:
                     return new ConsoleNotifyService { Enabled = enabled };
                 case NotifierType.Email:
-                    return new EmailNotifyService(enabled, from, fromName, to.Value, subject, pathToPwd, smtp, port);
+                    return new EmailNotifyService(enabled, from, fromName, to.Value, subject, smtp, port, loginHandler);
                 case NotifierType.NotifyIcon:
                     if (notifyIcon != null)
                         return new NotifyIconNotifyService(enabled, notifyIcon, time);

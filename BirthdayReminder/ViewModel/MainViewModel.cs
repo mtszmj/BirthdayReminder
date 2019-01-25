@@ -41,7 +41,6 @@ namespace BirthdayReminder
         public MainViewModel(IDataService dataService, IEnumerable<INotifyService> notifyService, System.Windows.Forms.NotifyIcon notifyIcon, ILogViewModel logVM = null)
         {
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
-            LastNotify = DateTime.Today.AddDays(-1);
             LoadSettings();
             SetNotifyIcon(notifyIcon);
 
@@ -392,7 +391,6 @@ namespace BirthdayReminder
                 }
             }
         }
-
 
         private bool GetStartWithSystem()
         {

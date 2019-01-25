@@ -109,18 +109,6 @@ namespace BirthdayReminder.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Auth/pwd.txt")]
-        public string PathToPwd {
-            get {
-                return ((string)(this["PathToPwd"]));
-            }
-            set {
-                this["PathToPwd"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("smtp.gmail.com")]
         public string Smtp {
             get {
@@ -217,6 +205,42 @@ namespace BirthdayReminder.Properties {
             }
             set {
                 this["BaloonNotificationTipTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Auth/password.txt")]
+        public string PathToPassword {
+            get {
+                return ((string)(this["PathToPassword"]));
+            }
+            set {
+                this["PathToPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Auth/salt.txt")]
+        public string PathToSalt {
+            get {
+                return ((string)(this["PathToSalt"]));
+            }
+            set {
+                this["PathToSalt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Temp/Birth/birth.xml")]
+        public string PathToData {
+            get {
+                return ((string)(this["PathToData"]));
+            }
+            set {
+                this["PathToData"] = value;
             }
         }
     }

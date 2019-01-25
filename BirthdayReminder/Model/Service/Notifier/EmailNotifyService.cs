@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Smtp;
+﻿using BirthdayReminder.Model.Service.Password;
+using MailKit.Net.Smtp;
 using MimeKit;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,20 @@ namespace BirthdayReminder.Model.Service
         private string FromName { get; }
         private List<string> To { get; } = new List<string>();
         private string Subject { get; }
-        private string Path { get; }
         private int Port { get; }
         private string Smtp { get; }
+        ILoginHandler LoginHandler;
 
-        internal EmailNotifyService(bool enabled, string from, string fromName, IEnumerable<string> to, string subject, string path, string smtp, int port)
+        internal EmailNotifyService(
+            bool enabled, 
+            string from, 
+            string fromName, 
+            IEnumerable<string> to, 
+            string subject, 
+            string smtp, 
+            int port,
+            ILoginHandler loginHandler
+            )
         {
             if (to == null)
                 throw new ArgumentNullException(nameof(to));
@@ -29,23 +39,22 @@ namespace BirthdayReminder.Model.Service
             FromName = fromName ?? throw new ArgumentNullException(nameof(fromName));
             To.AddRange(to);
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
-            Path = path ?? throw new ArgumentNullException(nameof(path));
-            Smtp = smtp ?? throw new ArgumentNullException(nameof(path));
+            Smtp = smtp ?? throw new ArgumentNullException(nameof(Smtp));
             Port = port;
+            LoginHandler = loginHandler ?? throw new ArgumentNullException(nameof(loginHandler));
         }
 
         public void Notify(IEnumerable<Person> peopleWithBirthdayToday, IEnumerable<Person> peopleWithBirthdayInFuture)
         {
             Logger.Log.LogDebug("TEST WATKOW");
             var message = PrepareMessage(peopleWithBirthdayToday, peopleWithBirthdayInFuture);
-            var password = File.ReadAllText(Path);
             using (var client = new SmtpClient())
             {
                 // accept all SSL certificates (in case the server supports STARTTLS)
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
                 client.Connect(Smtp, Port, true);
-                client.Authenticate(From, password);
+                client.Authenticate(From, LoginHandler.ReadPassword());
 
                 if (Enabled)
                     client.Send(message);
