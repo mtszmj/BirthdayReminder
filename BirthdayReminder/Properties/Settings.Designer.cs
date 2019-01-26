@@ -73,25 +73,25 @@ namespace BirthdayReminder.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("mtszmj.rpi@gmail.com")]
-        public string EmailFrom {
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Temp/Birth/emailfrom.txt")]
+        public string EmailFromPath {
             get {
-                return ((string)(this["EmailFrom"]));
+                return ((string)(this["EmailFromPath"]));
             }
             set {
-                this["EmailFrom"] = value;
+                this["EmailFromPath"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("portal@10g.pl")]
-        public string EmailTo {
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Temp/Birth/emailto.txt")]
+        public string EmailToPath {
             get {
-                return ((string)(this["EmailTo"]));
+                return ((string)(this["EmailToPath"]));
             }
             set {
-                this["EmailTo"] = value;
+                this["EmailToPath"] = value;
             }
         }
         
@@ -198,10 +198,10 @@ namespace BirthdayReminder.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("01:00:00")]
-        public global::System.TimeSpan BaloonNotificationTipTime {
+        [global::System.Configuration.DefaultSettingValueAttribute("30000")]
+        public int BaloonNotificationTipTime {
             get {
-                return ((global::System.TimeSpan)(this["BaloonNotificationTipTime"]));
+                return ((int)(this["BaloonNotificationTipTime"]));
             }
             set {
                 this["BaloonNotificationTipTime"] = value;
@@ -210,7 +210,7 @@ namespace BirthdayReminder.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Auth/password.txt")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Temp/Birth/password.txt")]
         public string PathToPassword {
             get {
                 return ((string)(this["PathToPassword"]));
@@ -222,7 +222,7 @@ namespace BirthdayReminder.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Auth/salt.txt")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Temp/Birth/salt.txt")]
         public string PathToSalt {
             get {
                 return ((string)(this["PathToSalt"]));
@@ -241,6 +241,18 @@ namespace BirthdayReminder.Properties {
             }
             set {
                 this["PathToData"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("01:00:00")]
+        public global::System.TimeSpan TimerPeriod {
+            get {
+                return ((global::System.TimeSpan)(this["TimerPeriod"]));
+            }
+            set {
+                this["TimerPeriod"] = value;
             }
         }
     }

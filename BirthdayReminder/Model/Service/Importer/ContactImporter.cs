@@ -56,7 +56,6 @@ namespace BirthdayReminder.Model.Service
             {
                 var ext = Path.GetExtension(pathToImportedFile).ToLower();
                 Extensions.TryGetValue(ext, out var extension);
-                Logger.Log.LogDebug($"Extension: {extension}");
                 switch (extension)
                 {
                     case ExtensionType.CSV:
@@ -87,13 +86,11 @@ namespace BirthdayReminder.Model.Service
                 {
                     if (typeof(IImportStrategy).IsAssignableFrom(strategy) && strategy.IsClass)
                     {
-                        Logger.Log.LogDebug($"TYP: {strategy.Name}");
                         var importer = (IImportStrategy)Activator.CreateInstance(strategy);
                         if (importer.IsCorrectFormat(pathToImportedFile))
                             return importer;
                     }
                 }
-                Logger.Log.LogError("return null import strategy");
                 return new NullStrategy();
             }
         }

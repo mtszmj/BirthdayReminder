@@ -33,6 +33,7 @@ namespace BirthdayReminder
         private RelayCommand _OpenLogWindow;
         private RelayCommand _RemovePersonCommand;
         private RelayCommand _StartWithSystem;
+        private bool _Startup;
         private readonly object IsImportStartedLocker = new object();
         private readonly System.Windows.Threading.DispatcherTimer NotifyTimer;
         private System.Windows.Forms.NotifyIcon _NotifyIcon;
@@ -40,6 +41,7 @@ namespace BirthdayReminder
 
         public MainViewModel(IDataService dataService, IEnumerable<INotifyService> notifyService, System.Windows.Forms.NotifyIcon notifyIcon, ILogViewModel logVM = null)
         {
+            _Startup = true;
             Dispatcher.CurrentDispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
             LoadSettings();
             SetNotifyIcon(notifyIcon);
@@ -72,6 +74,7 @@ namespace BirthdayReminder
             {
                 View.Show();
             }
+            _Startup = false;
         }
         
 
@@ -468,7 +471,7 @@ namespace BirthdayReminder
         private async void NotifyTimer_Tick(object sender, EventArgs e)
         {
             if(NotifyTimer.Interval == FirstTick)
-                NotifyTimer.Interval = Properties.Settings.Default.BaloonNotificationTipTime;
+                NotifyTimer.Interval = Properties.Settings.Default.TimerPeriod;
 
             await Notify();
         }
@@ -495,19 +498,13 @@ namespace BirthdayReminder
                                         && p.DaysToBirthday > 0)
                                     )
                             );
-
-                            Logger.Log.LogDebug($"Sent correctly for {notifyService.GetType().Name}");
                         }
                         catch (Exception exception)
                         {
                             MessageBox.Show($"{Properties.Resources.EmailException}{Environment.NewLine}{exception.ToString()}");
-                            Logger.Log.LogError("Bład wysyłania");
-                            Logger.Log.LogError(exception.ToString());
                         }
                     }
                     LastNotify = DateTime.Now;
-                    Logger.Log.LogInfo("Sprawdzone czy ktoś ma dzisiaj urodziny, zaktualizowana data ostatniego powiadomienia.");
-                    Logger.Log.LogDebug(LastNotify.ToString());
                 }
             }
         }
@@ -546,7 +543,6 @@ namespace BirthdayReminder
 
         private void RemoveStartWithSystem()
         {
-            Logger.Log.LogInfo(nameof(RemoveStartWithSystem));
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Properties.Settings.Default.RegistryKey, true))
             {
                 key.DeleteValue(Properties.Settings.Default.AppName, false);
@@ -617,13 +613,14 @@ namespace BirthdayReminder
 
         private void SetStartWithSystem()
         {
-            Logger.Log.LogInfo(nameof(SetStartWithSystem));
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Properties.Settings.Default.RegistryKey, true))
             {
                 key.SetValue(Properties.Settings.Default.AppName, System.Reflection.Assembly.GetExecutingAssembly().Location);
             }
             OnPropertyChanged(nameof(IsAutoStart));
-            _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, Properties.Resources.AutoStart, Properties.Resources.StartSet, System.Windows.Forms.ToolTipIcon.None);
+
+            if (!_Startup)
+                _NotifyIcon.ShowBalloonTip(Properties.Settings.Default.BaloonBasicTipTime, Properties.Resources.AutoStart, Properties.Resources.StartSet, System.Windows.Forms.ToolTipIcon.None);
         }
 
         private void View_Closing(object sender, CancelEventArgs e)

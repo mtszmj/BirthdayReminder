@@ -1,17 +1,8 @@
-﻿using Mtszmj.Logger;
-using BirthdayReminder.Model.Service;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using BirthdayReminder.Model.Service;
 using BirthdayReminder.Model.Service.Notifier;
-using BirthdayReminder;
 using BirthdayReminder.Model.Service.Password;
+using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace BirthdayReminder
 {
@@ -24,22 +15,26 @@ namespace BirthdayReminder
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            // Data service for loading and saving contacts data
             IDataService dataService = new XmlFileDataService(
                 BirthdayReminder.Properties.Settings.Default.PathToData
                 );
 
+            // Handling logging to email (loading encrypted password)
             ILoginHandler loginHandler = new LoginHandler(
                 BirthdayReminder.Properties.Settings.Default.PathToPassword,
                 BirthdayReminder.Properties.Settings.Default.PathToSalt
                 );
 
+            // notify icon in the system
             var notifyIcon = new System.Windows.Forms.NotifyIcon();
 
+            // notify service - email sender
             var notifyService = new NotifierBuilder()
                 .OfType(NotifierType.Email)
-                .SetEmailFrom(BirthdayReminder.Properties.Settings.Default.EmailFrom)
+                .SetEmailFrom(BirthdayReminder.Properties.Settings.Default.EmailFromPath)
                 .SetEmailFromName(BirthdayReminder.Properties.Settings.Default.EmailFromName)
-                .AddEmailTo(BirthdayReminder.Properties.Settings.Default.EmailTo)
+                .AddEmailTo(BirthdayReminder.Properties.Settings.Default.EmailToPath)
                 .SetSubject(BirthdayReminder.Properties.Settings.Default.Subject)
                 .WithSmtp(BirthdayReminder.Properties.Settings.Default.Smtp,
                     BirthdayReminder.Properties.Settings.Default.Port)
@@ -47,27 +42,30 @@ namespace BirthdayReminder
                 .Enabled()
                 .Build();
 
+            // notify decortor - retry before throwing exception
             notifyService = new NotifierRetryDecorator(notifyService, 3);
 
+            // notiify service - notify icon
             var notifyService2 = new NotifierBuilder()
                 .OfType(NotifierType.NotifyIcon)
                 .WithNotifyIcon(notifyIcon)
-                .WithNotifyTime(1000 * 60 * 6)
+                .WithNotifyTime(BirthdayReminder.Properties.Settings.Default.BaloonNotificationTipTime)
                 .Enabled()
                 .Build();
 
-            notifyService2 = new NotifierRetryDecorator(notifyService2);
-            
+            // log window - using logger dll I created
             LogViewModel logVM = null;
 #if DEBUG
             logVM = new LogViewModel();
 #endif
-            
-            MainViewModel wvm = new MainViewModel(dataService,
+
+            // main window
+            MainViewModel wvm = new MainViewModel(
+                dataService,
                 new[] { notifyService, notifyService2 },
                 notifyIcon,
                 logVM);
-            
+
         }
     }
 }

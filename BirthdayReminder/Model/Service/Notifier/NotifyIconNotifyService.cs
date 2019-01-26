@@ -24,7 +24,6 @@ namespace BirthdayReminder.Model.Service.Notifier
         public void Notify(IEnumerable<Person> peopleWithBirthdayToday, IEnumerable<Person> peopleWithBirthdayInFuture)
         {
             _NotifyIcon?.ShowBalloonTip(_Time, "BirthdayReminder", PrepareMessage(peopleWithBirthdayToday), ToolTipIcon.None);
-            Logger.Log.LogDebug($"Notify for notify icon");
         }
 
         private string PrepareMessage(IEnumerable<Person> peopleWithBirthdayToday)

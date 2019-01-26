@@ -46,7 +46,6 @@ namespace BirthdayReminder.Model.Service
 
         public void Notify(IEnumerable<Person> peopleWithBirthdayToday, IEnumerable<Person> peopleWithBirthdayInFuture)
         {
-            Logger.Log.LogDebug("TEST WATKOW");
             var message = PrepareMessage(peopleWithBirthdayToday, peopleWithBirthdayInFuture);
             using (var client = new SmtpClient())
             {
@@ -59,7 +58,6 @@ namespace BirthdayReminder.Model.Service
                 if (Enabled)
                     client.Send(message);
                 client.Disconnect(true);
-                Logger.Log.LogDebug("Wysłano poprawnie");
             }
         }
 

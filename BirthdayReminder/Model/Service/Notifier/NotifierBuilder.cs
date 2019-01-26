@@ -1,6 +1,7 @@
 ﻿using BirthdayReminder.Model.Service.Password;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,9 +29,16 @@ namespace BirthdayReminder.Model.Service.Notifier
             return this;
         }
 
-        public NotifierBuilder SetEmailFrom(string email)
+        public NotifierBuilder SetEmailFrom(string pathToFile)
         {
-            from = email;
+            if (pathToFile == null)
+                throw new ArgumentNullException(nameof(pathToFile));
+            if (!File.Exists(pathToFile))
+                throw new ArgumentException(nameof(pathToFile));
+
+            var mail = File.ReadLines(pathToFile).FirstOrDefault()?.Trim() 
+                ?? throw new InvalidOperationException("Brak podanego maila w pliku.");
+            from = mail;
             return this;
         }
 
@@ -40,10 +48,22 @@ namespace BirthdayReminder.Model.Service.Notifier
             return this;
         }
 
-        public NotifierBuilder AddEmailTo(params string[] emails)
+        public NotifierBuilder AddEmailTo(string pathToFile)
         {
-            if(emails != null)
-                to.Value.AddRange(emails);
+            if (pathToFile == null)
+                throw new ArgumentNullException(nameof(pathToFile));
+            if (!File.Exists(pathToFile))
+                throw new ArgumentException(nameof(pathToFile));
+
+            foreach (var email in File.ReadAllLines(pathToFile))
+            {
+                to.Value.Add(email.Trim());
+            }
+            if(!to.Value.Any())
+            {
+                throw new InvalidOperationException("Brak podanych maili w pliku.");
+            }
+
             return this;
         }
 
