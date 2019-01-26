@@ -76,7 +76,6 @@ namespace BirthdayReminder
             }
             _Startup = false;
         }
-        
 
         public ObservableCollection<Person> PeopleCollection { get; set; } = new ObservableCollection<Person>();
 
